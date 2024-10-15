@@ -1,0 +1,5 @@
+loguru
+cookiecutter
+pyyaml
+cwl-utils==0.14
+pydantic<2.0.0

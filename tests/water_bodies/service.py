@@ -119,7 +119,7 @@ class SimpleExecutionHandler(ExecutionHandler):
     def get_secrets(self):
         return {}
 
-def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # noqa
+def water_bodies(conf, inputs, outputs): # noqa
 
     try:
         with open(
