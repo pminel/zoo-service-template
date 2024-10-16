@@ -37,6 +37,7 @@ from zoo_calrissian_runner import ExecutionHandler, ZooCalrissianRunner
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
+
 class CustomStacIO(DefaultStacIO):
     """Custom STAC IO class that uses boto3 to read from S3."""
 
@@ -48,9 +49,6 @@ class CustomStacIO(DefaultStacIO):
             endpoint_url="http://eoap-zoo-project-localstack.eoap-zoo-project.svc.cluster.local:4566",
             aws_access_key_id="test",
             aws_secret_access_key="test",
-            #verify=True,
-            #use_ssl=True,
-            #config=Config(s3={"addressing_style": "path", "signature_version": "s3v4"}),
         )
 
     def read_text(self, source, *args, **kwargs):
@@ -78,7 +76,9 @@ class CustomStacIO(DefaultStacIO):
         else:
             super().write_text(dest, txt, *args, **kwargs)
 
+
 StacIO.set_default(CustomStacIO)
+
 
 class SimpleExecutionHandler(ExecutionHandler):
     def __init__(self, conf):
@@ -87,7 +87,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         self.results = None
 
     def pre_execution_hook(self):
-        
+
         logger.info("Pre execution hook")
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
@@ -103,45 +103,49 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         cat = read_file(output["s3_catalog_output"])
 
-
-        collection_id = self.conf["additional_parameters"]["sub_path"]
+        collection_id = self.get_additional_parameters()["sub_path"]
         logger.info(f"Create collection with ID {collection_id}")
+
         collection = None
         try:
             collection = next(cat.get_all_collections())
             logger.info("Got collection from outputs")
         except:
             try:
-                items=cat.get_all_items()
-                itemFinal=[]
+                items = cat.get_all_items()
+                itemFinal = []
                 for i in items:
                     for a in i.assets.keys():
-                        cDict=i.assets[a].to_dict()
-                        cDict["storage:platform"]="EOEPCA"
-                        cDict["storage:requester_pays"]=False
-                        cDict["storage:tier"]="Standard"
-                        cDict["storage:region"]=self.conf["additional_parameters"]["region_name"]
-                        cDict["storage:endpoint"]=self.conf["additional_parameters"]["endpoint_url"]
-                        i.assets[a]=i.assets[a].from_dict(cDict)
-                    i.collection_id=collection_id
-                    itemFinal+=[i.clone()]
+                        cDict = i.assets[a].to_dict()
+                        cDict["storage:platform"] = "EOEPCA"
+                        cDict["storage:requester_pays"] = False
+                        cDict["storage:tier"] = "Standard"
+                        cDict["storage:region"] = self.get_additional_parameters()[
+                            "region_name"
+                        ]
+                        cDict["storage:endpoint"] = self.get_additional_parameters()[
+                            "endpoint_url"
+                        ]
+                        i.assets[a] = i.assets[a].from_dict(cDict)
+                    i.collection_id = collection_id
+                    itemFinal += [i.clone()]
                 collection = ItemCollection(items=itemFinal)
                 logger.info("Created collection from items")
             except Exception as e:
-                logger.error(f"Exception: {e}"+str(e))
-        
+                logger.error(f"Exception: {e}" + str(e))
+
         # Trap the case of no output collection
         if collection is None:
             logger.error("ABORT: The output collection is empty")
             self.feature_collection = json.dumps({}, indent=2)
             return
 
-        collection_dict=collection.to_dict()
-        collection_dict["id"]=collection_id
+        collection_dict = collection.to_dict()
+        collection_dict["id"] = collection_id
 
         # Set the feature collection to be returned
         self.results = collection_dict
-       
+
     def get_pod_env_vars(self):
 
         logger.info("get_pod_env_vars")
@@ -157,7 +161,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         node_selector = {}
 
         return node_selector
-    
+
     def get_additional_parameters(self):
 
         logger.info("get_additional_parameters")
@@ -186,20 +190,22 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         """
 
-        
-
         try:
             logger.info("handle_outputs")
 
             logger.info(f"Set output to {output['s3_catalog_output']}")
             self.results = {"url": output["s3_catalog_output"]}
 
-            self.conf['main']['tmpUrl']=self.conf['main']['tmpUrl'].replace("temp/",self.conf["auth_env"]["user"]+"/temp/")
+            self.conf["main"]["tmpUrl"] = self.conf["main"]["tmpUrl"].replace(
+                "temp/", self.conf["auth_env"]["user"] + "/temp/"
+            )
             services_logs = [
                 {
-                    "url": os.path.join(self.conf['main']['tmpUrl'],
-                                        f"{self.conf['lenv']['Identifier']}-{self.conf['lenv']['usid']}",
-                                        os.path.basename(tool_log)),
+                    "url": os.path.join(
+                        self.conf["main"]["tmpUrl"],
+                        f"{self.conf['lenv']['Identifier']}-{self.conf['lenv']['usid']}",
+                        os.path.basename(tool_log),
+                    ),
                     "title": f"Tool log {os.path.basename(tool_log)}",
                     "rel": "related",
                 }
@@ -222,12 +228,13 @@ class SimpleExecutionHandler(ExecutionHandler):
         except Exception as e:
             logger.error("ERROR in handle_outputs...")
             logger.error(traceback.format_exc())
-            raise(e)
+            raise (e)
 
     def get_secrets(self):
         return {}
 
-def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # noqa
+
+def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  # noqa
 
     try:
         with open(
@@ -261,7 +268,9 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
 
         if exit_status == zoo.SERVICE_SUCCEEDED:
             logger.info(f"Setting Collection into output key {list(outputs.keys())[0]}")
-            outputs["stac_catalog"]["value"] = json.dumps(execution_handler.results, indent=2)
+            outputs["stac_catalog"]["value"] = json.dumps(
+                execution_handler.results, indent=2
+            )
             return zoo.SERVICE_SUCCEEDED
 
         else:
@@ -270,20 +279,20 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
             return zoo.SERVICE_FAILED
 
     except Exception as e:
-        
+
         logger.error("ERROR in processing execution template...")
         logger.error("Try to fetch the tool logs if any...")
-        
+
         try:
             tool_logs = runner.execution.get_tool_logs()
             execution_handler.handle_outputs(None, None, None, tool_logs)
         except Exception as e:
             logger.error(f"Fetching tool logs failed! ({str(e)})")
-        
+
         stack = traceback.format_exc()
-        
+
         logger.error(stack)
-        
+
         conf["lenv"]["message"] = zoo._(f"Exception during execution...\n{stack}\n")
-        
+
         return zoo.SERVICE_FAILED
