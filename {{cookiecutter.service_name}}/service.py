@@ -125,7 +125,7 @@ class SimpleExecutionHandler(ExecutionHandler):
                 logger.info(f"Processing asset {asset_key}")
                 
                 temp_asset = item.assets[asset_key].to_dict()
-                temp_asset["storage:platform"] = "EOEPCA"
+                temp_asset["storage:platform"] = "eoap"
                 temp_asset["storage:requester_pays"] = False
                 temp_asset["storage:tier"] = "Standard"
                 temp_asset["storage:region"] = self.get_additional_parameters()[
