@@ -161,7 +161,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
 
         if exit_status == zoo.SERVICE_SUCCEEDED:
             logger.info(f"Setting Collection into output key {list(outputs.keys())[0]}")
-            outputs["stac_catalog"]["value"] = json.dumps(runner.results)
+            outputs["stac_catalog"]["value"] = json.dumps(execution_handler.results)
             return zoo.SERVICE_SUCCEEDED
 
         else:
