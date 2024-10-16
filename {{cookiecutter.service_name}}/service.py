@@ -21,6 +21,7 @@ import os
 import sys
 import traceback
 import yaml
+import json
 from loguru import logger
 from zoo_calrissian_runner import ExecutionHandler, ZooCalrissianRunner
 
@@ -31,6 +32,7 @@ class SimpleExecutionHandler(ExecutionHandler):
     def __init__(self, conf):
         super().__init__()
         self.conf = conf
+        self.results = None
 
     def pre_execution_hook(self):
         
@@ -83,8 +85,14 @@ class SimpleExecutionHandler(ExecutionHandler):
         :param tool_logs: A list of paths to individual workflow step logs.
 
         """
+
+        
+
         try:
             logger.info("handle_outputs")
+
+            logger.info(f"Set output to {output['s3_catalog_output']}")
+            self.results = {"url": output["s3_catalog_output"]}
 
             self.conf['main']['tmpUrl']=self.conf['main']['tmpUrl'].replace("temp/",self.conf["auth_env"]["user"]+"/temp/")
             services_logs = [
@@ -153,7 +161,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
 
         if exit_status == zoo.SERVICE_SUCCEEDED:
             logger.info(f"Setting Collection into output key {list(outputs.keys())[0]}")
-            outputs[list(outputs.keys())[0]]["value"] = "wow"
+            outputs["stac_catalog"]["value"] = json.dumps(runner.results)
             return zoo.SERVICE_SUCCEEDED
 
         else:
