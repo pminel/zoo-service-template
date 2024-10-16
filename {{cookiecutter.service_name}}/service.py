@@ -101,7 +101,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         cat = read_file(output["s3_catalog_output"])
 
 
-        collection_id = self.conf["additional_parameters"]["collection_id"]
+        collection_id = self.conf["additional_parameters"]["sub_path"]
         logger.info(f"Create collection with ID {collection_id}")
         collection = None
         try:
@@ -117,8 +117,8 @@ class SimpleExecutionHandler(ExecutionHandler):
                         cDict["storage:platform"]="EOEPCA"
                         cDict["storage:requester_pays"]=False
                         cDict["storage:tier"]="Standard"
-                        cDict["storage:region"]=self.conf["additional_parameters"]["STAGEOUT_AWS_REGION"]
-                        cDict["storage:endpoint"]=self.conf["additional_parameters"]["STAGEOUT_AWS_SERVICEURL"]
+                        cDict["storage:region"]=self.conf["additional_parameters"]["region_name"]
+                        cDict["storage:endpoint"]=self.conf["additional_parameters"]["endpoint_url"]
                         i.assets[a]=i.assets[a].from_dict(cDict)
                     i.collection_id=collection_id
                     itemFinal+=[i.clone()]
