@@ -104,47 +104,55 @@ class SimpleExecutionHandler(ExecutionHandler):
         cat = read_file(output["s3_catalog_output"])
 
         collection_id = self.get_additional_parameters()["sub_path"]
+
         logger.info(f"Create collection with ID {collection_id}")
 
         collection = None
-        try:
-            collection = next(cat.get_all_collections())
-            logger.info("Got collection from outputs")
-        except:
-            try:
-                items = cat.get_all_items()
-                itemFinal = []
-                for i in items:
-                    for a in i.assets.keys():
-                        cDict = i.assets[a].to_dict()
-                        cDict["storage:platform"] = "EOEPCA"
-                        cDict["storage:requester_pays"] = False
-                        cDict["storage:tier"] = "Standard"
-                        cDict["storage:region"] = self.get_additional_parameters()[
-                            "region_name"
-                        ]
-                        cDict["storage:endpoint"] = self.get_additional_parameters()[
-                            "endpoint_url"
-                        ]
-                        i.assets[a] = i.assets[a].from_dict(cDict)
-                    i.collection_id = collection_id
-                    itemFinal += [i.clone()]
-                collection = ItemCollection(items=itemFinal)
-                logger.info("Created collection from items")
-            except Exception as e:
-                logger.error(f"Exception: {e}" + str(e))
+
+        collection = next(cat.get_all_collections())
+
+        logger.info("Got collection from outputs")
+
+                
+        items = []
+        
+        for item in collection.get_all_items():
+
+            logger.info("Processing item {item.id}")
+            
+            for asset_key in item.assets.keys():
+
+                logger.info(f"Processing asset {asset_key}")
+                
+                temp_asset = item.assets[asset_key].to_dict()
+                temp_asset["storage:platform"] = "EOEPCA"
+                temp_asset["storage:requester_pays"] = False
+                temp_asset["storage:tier"] = "Standard"
+                temp_asset["storage:region"] = self.get_additional_parameters()[
+                    "region_name"
+                ]
+                temp_asset["storage:endpoint"] = self.get_additional_parameters()[
+                    "endpoint_url"
+                ]
+                item.assets[asset_key] = item.assets[asset_key].from_dict(temp_asset)
+            
+            item.collection_id = collection_id
+
+            items.append(item.clone())
+
+        item_collection = ItemCollection(items=items)
+
+        logger.info("Created collection from items")
 
         # Trap the case of no output collection
-        if collection is None:
-            logger.error("ABORT: The output collection is empty")
+        if item_collection is None:
+            logger.error("The output collection is empty")
             self.feature_collection = json.dumps({}, indent=2)
             return
 
-        collection_dict = collection.to_dict()
-        collection_dict["id"] = collection_id
-
         # Set the feature collection to be returned
-        self.results = collection_dict
+        self.results = item_collection.to_dict()
+        self.results["id"] = collection_id
 
     def get_pod_env_vars(self):
 
