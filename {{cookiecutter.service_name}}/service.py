@@ -153,7 +153,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
 
         if exit_status == zoo.SERVICE_SUCCEEDED:
             logger.info(f"Setting Collection into output key {list(outputs.keys())[0]}")
-            outputs[list(outputs.keys())[0]]["value"] = execution_handler.feature_collection
+            outputs[list(outputs.keys())[0]]["value"] = "wow"
             return zoo.SERVICE_SUCCEEDED
 
         else:
