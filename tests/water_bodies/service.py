@@ -21,16 +21,67 @@ import os
 import sys
 import traceback
 import yaml
+import json
+import boto3  # noqa: F401
+import botocore
 from loguru import logger
+from urllib.parse import urlparse
+from botocore.exceptions import ClientError
+from botocore.client import Config
+from pystac import read_file
+from pystac.stac_io import DefaultStacIO, StacIO
+from pystac.item_collection import ItemCollection
 from zoo_calrissian_runner import ExecutionHandler, ZooCalrissianRunner
+
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
+
+class CustomStacIO(DefaultStacIO):
+    """Custom STAC IO class that uses boto3 to read from S3."""
+
+    def __init__(self):
+        self.session = botocore.session.Session()
+        self.s3_client = self.session.create_client(
+            service_name="s3",
+            region_name="us-east-1",
+            endpoint_url="http://eoap-zoo-project-localstack.eoap-zoo-project.svc.cluster.local:4566",
+            aws_access_key_id="test",
+            aws_secret_access_key="test",
+        )
+
+    def read_text(self, source, *args, **kwargs):
+        parsed = urlparse(source)
+        if parsed.scheme == "s3":
+            return (
+                self.s3_client.get_object(Bucket=parsed.netloc, Key=parsed.path[1:])[
+                    "Body"
+                ]
+                .read()
+                .decode("utf-8")
+            )
+        else:
+            return super().read_text(source, *args, **kwargs)
+
+    def write_text(self, dest, txt, *args, **kwargs):
+        parsed = urlparse(dest)
+        if parsed.scheme == "s3":
+            self.s3_client.put_object(
+                Body=txt.encode("UTF-8"),
+                Bucket=parsed.netloc,
+                Key=parsed.path[1:],
+                ContentType="application/geo+json",
+            )
+        else:
+            super().write_text(dest, txt, *args, **kwargs)
+
+StacIO.set_default(CustomStacIO)
 
 class SimpleExecutionHandler(ExecutionHandler):
     def __init__(self, conf):
         super().__init__()
         self.conf = conf
+        self.results = None
 
     def pre_execution_hook(self):
         
@@ -38,7 +89,55 @@ class SimpleExecutionHandler(ExecutionHandler):
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 
+        # unset HTTP proxy or else the S3 client will use it and fail
+        os.environ.pop("HTTP_PROXY", None)
+
         logger.info("Post execution hook")
+
+        StacIO.set_default(CustomStacIO)
+
+        logger.info(f"Read catalog => STAC Catalog URI: {output['s3_catalog_output']}")
+
+        cat = read_file(output["s3_catalog_output"])
+
+
+        collection_id = self.conf["additional_parameters"]["collection_id"]
+        logger.info(f"Create collection with ID {collection_id}")
+        collection = None
+        try:
+            collection = next(cat.get_all_collections())
+            logger.info("Got collection from outputs")
+        except:
+            try:
+                items=cat.get_all_items()
+                itemFinal=[]
+                for i in items:
+                    for a in i.assets.keys():
+                        cDict=i.assets[a].to_dict()
+                        cDict["storage:platform"]="EOEPCA"
+                        cDict["storage:requester_pays"]=False
+                        cDict["storage:tier"]="Standard"
+                        cDict["storage:region"]=self.conf["additional_parameters"]["STAGEOUT_AWS_REGION"]
+                        cDict["storage:endpoint"]=self.conf["additional_parameters"]["STAGEOUT_AWS_SERVICEURL"]
+                        i.assets[a]=i.assets[a].from_dict(cDict)
+                    i.collection_id=collection_id
+                    itemFinal+=[i.clone()]
+                collection = ItemCollection(items=itemFinal)
+                logger.info("Created collection from items")
+            except Exception as e:
+                logger.error(f"Exception: {e}"+str(e))
+        
+        # Trap the case of no output collection
+        if collection is None:
+            logger.error("ABORT: The output collection is empty")
+            self.feature_collection = json.dumps({}, indent=2)
+            return
+
+        collection_dict=collection.to_dict()
+        collection_dict["id"]=collection_id
+
+        # Set the feature collection to be returned
+        self.results = collection_dict
        
     def get_pod_env_vars(self):
 
@@ -66,7 +165,7 @@ class SimpleExecutionHandler(ExecutionHandler):
             "region_name": "us-east-1",
             "aws_secret_access_key": "test",
             "aws_access_key_id": "test",
-            "endpoint_url": "http://localstack:4566",
+            "endpoint_url": "http://eoap-zoo-project-localstack.eoap-zoo-project.svc.cluster.local:4566",
         }
 
         logger.info(f"additional_parameters: {additional_parameters.keys()}")
@@ -83,8 +182,14 @@ class SimpleExecutionHandler(ExecutionHandler):
         :param tool_logs: A list of paths to individual workflow step logs.
 
         """
+
+        
+
         try:
             logger.info("handle_outputs")
+
+            logger.info(f"Set output to {output['s3_catalog_output']}")
+            self.results = {"url": output["s3_catalog_output"]}
 
             self.conf['main']['tmpUrl']=self.conf['main']['tmpUrl'].replace("temp/",self.conf["auth_env"]["user"]+"/temp/")
             services_logs = [
@@ -153,7 +258,7 @@ def water_bodies(conf, inputs, outputs): # noqa
 
         if exit_status == zoo.SERVICE_SUCCEEDED:
             logger.info(f"Setting Collection into output key {list(outputs.keys())[0]}")
-            outputs[list(outputs.keys())[0]]["value"] = execution_handler.feature_collection
+            outputs["stac_catalog"]["value"] = json.dumps(execution_handler.results, indent=2)
             return zoo.SERVICE_SUCCEEDED
 
         else:
