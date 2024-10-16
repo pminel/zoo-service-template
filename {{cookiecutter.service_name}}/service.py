@@ -92,6 +92,9 @@ class SimpleExecutionHandler(ExecutionHandler):
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 
+        # unset HTTP proxy or else the S3 client will use it and fail
+        os.environ.pop("HTTP_PROXY", None)
+
         logger.info("Post execution hook")
 
         StacIO.set_default(CustomStacIO)
