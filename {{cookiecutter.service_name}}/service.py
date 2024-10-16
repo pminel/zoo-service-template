@@ -66,7 +66,7 @@ class SimpleExecutionHandler(ExecutionHandler):
             "region_name": "us-east-1",
             "aws_secret_access_key": "test",
             "aws_access_key_id": "test",
-            "endpoint_url": "http://localstack:4566",
+            "endpoint_url": "http://eoap-zoo-project-localstack.eoap-zoo-project.svc.cluster.local:4566",
         }
 
         logger.info(f"additional_parameters: {additional_parameters.keys()}")
