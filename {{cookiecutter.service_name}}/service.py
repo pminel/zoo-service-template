@@ -99,7 +99,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         StacIO.set_default(CustomStacIO)
 
-        logger.info(f"Read catalog => STAC Catalog URI: {output['s3_catalog_output']}")
+        logger.info(f"Read catalog from STAC Catalog URI: {output['s3_catalog_output']}")
 
         cat = read_file(output["s3_catalog_output"])
 
@@ -111,9 +111,8 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         collection = next(cat.get_all_collections())
 
-        logger.info("Got collection from outputs")
-
-                
+        logger.info("Got collection {collection.id} from processing outputs")
+        
         items = []
         
         for item in collection.get_all_items():
@@ -142,7 +141,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         item_collection = ItemCollection(items=items)
 
-        logger.info("Created collection from items")
+        logger.info("Created feature collection from items")
 
         # Trap the case of no output collection
         if item_collection is None:
@@ -155,6 +154,8 @@ class SimpleExecutionHandler(ExecutionHandler):
         self.results["id"] = collection_id
 
     def get_pod_env_vars(self):
+        # This method is used to set environment variables for the pod
+        # spawned by calrissian.
 
         logger.info("get_pod_env_vars")
 
@@ -163,6 +164,8 @@ class SimpleExecutionHandler(ExecutionHandler):
         return env_vars
 
     def get_pod_node_selector(self):
+        # This method is used to set node selectors for the pod
+        # spawned by calrissian.
 
         logger.info("get_pod_node_selector")
 
@@ -171,6 +174,8 @@ class SimpleExecutionHandler(ExecutionHandler):
         return node_selector
 
     def get_additional_parameters(self):
+        # sets the additional parameters for the execution
+        # of the wrapped Application Package
 
         logger.info("get_additional_parameters")
 
