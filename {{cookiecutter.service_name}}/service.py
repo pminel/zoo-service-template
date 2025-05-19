@@ -30,7 +30,7 @@ from loguru import logger
 from urllib.parse import urlparse
 from botocore.exceptions import ClientError
 from botocore.client import Config
-from pystac import read_file
+from pystac import read_file, Collection, Catalog
 from pystac.stac_io import DefaultStacIO, StacIO
 from pystac.item_collection import ItemCollection
 from zoo_calrissian_runner import ExecutionHandler, ZooCalrissianRunner
@@ -44,14 +44,13 @@ class CustomStacIO(DefaultStacIO):
     """Custom STAC IO class that uses boto3 to read from S3."""
 
     def __init__(self):
-        print("PMINEL", file=sys.stdout)
         self.session = botocore.session.Session()
         self.s3_client = self.session.create_client(
             service_name="s3",
-            region_name="us-east-1",
-            endpoint_url="http://eoap-zoo-project-localstack.eoap-zoo-project.svc.cluster.local:4566",
-            aws_access_key_id="test",
-            aws_secret_access_key="test",
+            region_name=os.environ["AWS_S3_REGION"],
+            endpoint_url=os.environ["AWS_S3_ENDPOINT"],
+            aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
         )
 
     def read_text(self, source, *args, **kwargs):
@@ -85,7 +84,6 @@ StacIO.set_default(CustomStacIO)
 
 class SimpleExecutionHandler(ExecutionHandler):
     def __init__(self, conf):
-        print("Test PAOLO 2")
         super().__init__()
         self.conf = conf
         self.results = None
@@ -99,13 +97,18 @@ class SimpleExecutionHandler(ExecutionHandler):
         # unset HTTP proxy or else the S3 client will use it and fail
         os.environ.pop("HTTP_PROXY", None)
 
+        os.environ["AWS_S3_REGION"] = self.get_additional_parameters()["region_name"]
+        os.environ["AWS_S3_ENDPOINT"] = self.get_additional_parameters()["endpoint_url"]
+        os.environ["AWS_ACCESS_KEY_ID"] = self.get_additional_parameters()["aws_access_key_id"]
+        os.environ["AWS_SECRET_ACCESS_KEY"] = self.get_additional_parameters()["aws_secret_access_key"]
+
         logger.info("Post execution hook")
 
         StacIO.set_default(CustomStacIO)
 
         logger.info(f"Read catalog from STAC Catalog URI: {output['s3_catalog_output']}")
 
-        cat = read_file(output["s3_catalog_output"])
+        cat: Catalog  = read_file(output["s3_catalog_output"])
 
         collection_id = self.get_additional_parameters()["sub_path"]
 
@@ -113,7 +116,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         collection = None
 
-        collection = next(cat.get_all_collections())
+        collection: Collection = next(cat.get_all_collections())
 
         logger.info("Got collection {collection.id} from processing outputs")
         
@@ -157,27 +160,51 @@ class SimpleExecutionHandler(ExecutionHandler):
         self.results = item_collection.to_dict()
         self.results["id"] = collection_id
 
-    def get_pod_env_vars(self):
+    @staticmethod
+    def local_get_file(fileName):
+        """
+        Read and load the contents of a yaml file
+
+        :param yaml file to load
+        """
+        try:
+            with open(fileName, "r") as file:
+                data = yaml.safe_load(file)
+            return data
+        # if file does not exist
+        except FileNotFoundError:
+            return {}
+        # if file is empty
+        except yaml.YAMLError:
+            return {}
+        # if file is not yaml
+        except yaml.scanner.ScannerError:
+            return {}
+
+    def get_pod_env_vars(self) -> Dict[str, str]:
         # This method is used to set environment variables for the pod
         # spawned by calrissian.
 
         logger.info("get_pod_env_vars")
 
-        env_vars = {"A": "1", "B": "2"}
+        env_vars: Dict[str, str] = {}
+        env_vars = self.conf.get("pod_env_vars", {})
 
         return env_vars
 
-    def get_pod_node_selector(self):
+    def get_pod_node_selector(self) -> Dict[str, str]:
         # This method is used to set node selectors for the pod
         # spawned by calrissian.
 
         logger.info("get_pod_node_selector")
+        node_selector: Dict[str, str] = {}
+        node_selector = self.conf.get("pod_node_selector", {})
 
-        node_selector = {}
+        logger.info(f"node_selector: {node_selector.keys()}")
 
         return node_selector
 
-    def get_additional_parameters(self):
+    def get_additional_parameters(self) -> Dict[str, str]:
         # sets the additional parameters for the execution
         # of the wrapped Application Package
 
@@ -243,11 +270,16 @@ class SimpleExecutionHandler(ExecutionHandler):
             raise (e)
 
     def get_secrets(self):
-        return {}
+        logger.info("get_secrets")
+        secrets={
+            "imagePullSecrets": self.local_get_file("/assets/pod_imagePullSecrets.yaml"),
+            "additionalImagePullSecrets": self.local_get_file("/assets/pod_additionalImagePullSecrets.yaml")
+        }
+        return secrets
 
 
 def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  # noqa
-    print("Test PAOLO 3")
+    
     try:
         with open(
             os.path.join(
@@ -280,7 +312,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
 
         if exit_status == zoo.SERVICE_SUCCEEDED:
             logger.info(f"Setting Collection into output key {list(outputs.keys())[0]}")
-            outputs["stac_catalog"]["value"] = json.dumps(
+            outputs[list(outputs.keys())[0]]["value"] = json.dumps(
                 execution_handler.results, indent=2
             )
             return zoo.SERVICE_SUCCEEDED
