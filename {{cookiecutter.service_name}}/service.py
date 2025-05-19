@@ -44,6 +44,7 @@ class CustomStacIO(DefaultStacIO):
     """Custom STAC IO class that uses boto3 to read from S3."""
 
     def __init__(self):
+        print("Test PAOLO")
         self.session = botocore.session.Session()
         self.s3_client = self.session.create_client(
             service_name="s3",
@@ -84,6 +85,7 @@ StacIO.set_default(CustomStacIO)
 
 class SimpleExecutionHandler(ExecutionHandler):
     def __init__(self, conf):
+        print("Test PAOLO 2")
         super().__init__()
         self.conf = conf
         self.results = None
@@ -245,7 +247,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 
 
 def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  # noqa
-
+    print("Test PAOLO 3")
     try:
         with open(
             os.path.join(
