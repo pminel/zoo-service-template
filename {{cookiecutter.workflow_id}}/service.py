@@ -90,9 +90,97 @@ class SimpleExecutionHandler(ExecutionHandler):
         self.results = None
         logger.info("SIMPLE EXECUTION HANDLER")
 
-    def pre_execution_hook(self):
+    
 
-        logger.info("Pre execution hook")
+    def validation():
+        collection_file = sys.argv[2]
+        assets_dir = sys.argv[4]
+        items_dir = sys.argv[6]
+        thematic_service_name = sys.argv[8]
+
+        print(f"collection: {collection_file}")
+        print(f"assets_dir: {assets_dir}")
+        print(f"items_dir: {items_dir}")
+        print(f"thematic_service_name: {thematic_service_name}")
+
+
+    #     # check if collection.json file exists
+    #     logger.info(f"Checking if collection file {collection_file} exists...")
+    #     if not file_exists(collection_file):
+    #         logger.error(f"! Collection file {collection_file} does not exist.")
+    #         exit(1)
+    #     logger.info("Collection file exists")
+
+    #     # check if assets dir exists and is not empty
+    #     logger.info(f"Checking if assets dir {assets_dir} exists...")
+    #     if not file_exists(assets_dir):
+    #         logger.error(f"! Assets dir {assets_dir} does not exist.")
+    #         exit(2)
+    #     logger.info(f"Checking if assets dir {assets_dir} is not empty")
+    #     if is_folder_empty(assets_dir):
+    #         logger.error(f"! Assets dir {assets_dir} is empty.")
+    #         exit(3)
+    #     logger.info("Assets dir exists and is not empty")
+
+    #     # check if items dir exists and is not empty
+    #     logger.info(f"Checking if items dir {items_dir} exists...")
+    #     if not file_exists(items_dir):
+    #         logger.error(f"! Items dir {items_dir} does not exist.")
+    #         exit(4)
+    #     logger.info(f"Checking if items dir {items_dir} is not empty")
+    #     if is_folder_empty(items_dir):
+    #         logger.error(f"! Items dir {items_dir} is empty.")
+    #         exit(5)
+    #     logger.info("Items dir exists and is not empty")
+
+    #     logger.info("# Starting items validation...")
+    #     import json
+    #     for root, dirs, files in os.walk(items_dir):
+    #         logger.info(f"root={root}")
+    #         logger.info(f"dirs={dirs}")
+    #         logger.info(f"files={files}")
+    #         for file_name in files:
+    #             local_path = os.path.join(root, file_name)
+    #             relative_path = os.path.relpath(local_path, items_dir)
+    #             logger.info(f"local_path={local_path}")
+    #             logger.info(f"relative_path={relative_path}")
+    #             with open(local_path) as f:
+    #                 item_json = json.load(f)
+    #                 item_assets = item_json.get("assets", {})
+    #                 item_assets_ndvi = item_assets.get("ndvi", {})
+    #                 item_assets_ndvi_href: str = item_assets_ndvi.get("href", "")
+
+    #                 asset_href = merge_paths(assets_dir, item_assets_ndvi_href)
+    #                 asset_path = os.path.join(assets_dir, asset_href)
+    #                 logger.info(f"asset_path={asset_path}")
+    #                 asset_exists = file_exists(asset_path)
+    #                 logger.info(f"asset_exists={asset_exists}")
+
+
+    # def merge_paths(base, sub):
+    #     base_path = Path(base)
+    #     sub_parts = Path(sub).parts
+    #     if base_path.name == sub_parts[0]:
+    #         sub_parts = sub_parts[1:]
+    #     return str(base_path.joinpath(*sub_parts))
+
+
+    # def file_exists(file_path: str) -> bool:
+    #     return os.path.exists(file_path)
+
+
+    # def is_folder_empty(folder_path: str) -> bool:
+    #     files = os.listdir(folder_path)
+    #     return len(files) == 0
+
+
+
+
+    def pre_execution_hook(self):
+        logger.info("Validation")
+        self.validation()
+
+
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 

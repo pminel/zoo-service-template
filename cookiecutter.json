@@ -1,4 +1,6 @@
 {
     "workflow_id": "",
-    "zoo_job": "zoo_job"
+    "zoo_job": "zoo_job",
+    "spatial_extent": "spatial_extent",
+    "thematic_service_name": "thematic_service_name"
 }
