@@ -92,7 +92,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 
     
 
-    def validation():
+    def validation(self):
         print(f"validation, args: {sys.argv}")
 
         # collection_file = sys.argv[2]
