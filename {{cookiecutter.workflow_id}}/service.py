@@ -395,13 +395,13 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
 
         working_dir = os.path.join(conf["main"]["tmpPath"], runner.get_namespace_name())
 
-        print("---")
-        print(f"working_dir: {working_dir}")
-        print("---")
-        print(f"cwl: {cwl}")
-        print("---")
-        print(f"conf: {conf}")
-        print("---")
+        logger.info("---")
+        logger.info(f"working_dir: {working_dir}")
+        logger.info("---")
+        logger.info(f"cwl: {cwl}")
+        logger.info("---")
+        logger.info(f"conf: {conf}")
+        logger.info("---")
 
         os.makedirs(
             working_dir,
