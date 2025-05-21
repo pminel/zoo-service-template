@@ -384,9 +384,9 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
             cwl = yaml.safe_load(stream)
 
         print("---")
-        print(cwl)
+        print(f"cwl: {cwl}")
         print("---")
-        print(conf)
+        print(f"conf: {conf}")
         print("---")
 
         execution_handler = SimpleExecutionHandler(conf=conf)
@@ -401,7 +401,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
 
         working_dir = os.path.join(conf["main"]["tmpPath"], runner.get_namespace_name())
 
-        print(working_dir)
+        print(f"working_dir: {working_dir}")
         print("---")
 
         os.makedirs(
