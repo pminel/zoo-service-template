@@ -93,15 +93,17 @@ class SimpleExecutionHandler(ExecutionHandler):
     
 
     def validation():
-        collection_file = sys.argv[2]
-        assets_dir = sys.argv[4]
-        items_dir = sys.argv[6]
-        thematic_service_name = sys.argv[8]
+        print(f"validation, args: {sys.argv}")
 
-        print(f"collection: {collection_file}")
-        print(f"assets_dir: {assets_dir}")
-        print(f"items_dir: {items_dir}")
-        print(f"thematic_service_name: {thematic_service_name}")
+        # collection_file = sys.argv[2]
+        # assets_dir = sys.argv[4]
+        # items_dir = sys.argv[6]
+        # thematic_service_name = sys.argv[8]
+
+        # print(f"collection: {collection_file}")
+        # print(f"assets_dir: {assets_dir}")
+        # print(f"items_dir: {items_dir}")
+        # print(f"thematic_service_name: {thematic_service_name}")
 
 
     #     # check if collection.json file exists
