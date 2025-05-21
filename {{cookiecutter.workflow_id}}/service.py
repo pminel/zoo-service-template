@@ -398,10 +398,11 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         logger.info("---")
         logger.info(f"working_dir: {working_dir}")
         logger.info("---")
-        logger.info(f"cwl: {cwl}")
+        logger.info(f"runner: {runner}")
         logger.info("---")
-        logger.info(f"conf: {conf}")
+        logger.info(f"execution_handler: {runner.execution_handler}")
         logger.info("---")
+
 
         os.makedirs(
             working_dir,
