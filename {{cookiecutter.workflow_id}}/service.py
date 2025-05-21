@@ -93,7 +93,7 @@ class SimpleExecutionHandler(ExecutionHandler):
     
 
     def validation(self):
-        print(f"validation, args: {sys.argv}")
+        logger.info(f"validation, args: {sys.argv}")
 
         # collection_file = sys.argv[2]
         # assets_dir = sys.argv[4]
