@@ -400,7 +400,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         logger.info("---")
         logger.info(f"runner: {runner}")
         logger.info("---")
-        logger.info(f"execution_handler: {runner.execution_handler}")
+        logger.info(f"execution_handler: {execution_handler}")
         logger.info("---")
 
 
