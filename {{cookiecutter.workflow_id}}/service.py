@@ -383,12 +383,6 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         ) as stream:
             cwl = yaml.safe_load(stream)
 
-        print("---")
-        print(f"cwl: {cwl}")
-        print("---")
-        print(f"conf: {conf}")
-        print("---")
-
         execution_handler = SimpleExecutionHandler(conf=conf)
 
         runner = ZooCalrissianRunner(
@@ -401,7 +395,12 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
 
         working_dir = os.path.join(conf["main"]["tmpPath"], runner.get_namespace_name())
 
+        print("---")
         print(f"working_dir: {working_dir}")
+        print("---")
+        print(f"cwl: {cwl}")
+        print("---")
+        print(f"conf: {conf}")
         print("---")
 
         os.makedirs(
