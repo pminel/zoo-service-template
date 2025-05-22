@@ -220,8 +220,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 
     def get_s3_bucket(self):
         try:
-            logger.info(self.conf["main"].keys())
-            logger.info(self.conf["main"]["encoding"].keys())
+            logger.info(json.dumps(self.conf["main"]))
             res = json.dumps(self.conf).split("s3_bucket")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
             return res
         except Exception as e:
