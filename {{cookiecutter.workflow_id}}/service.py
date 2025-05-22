@@ -218,7 +218,7 @@ class SimpleExecutionHandler(ExecutionHandler):
     def get_service_for_process(self):
         # This method is used to set the service name based on the process name.
         try:
-            logger.info(self.conf.keys())
+            logger.info(self.conf["requestBody"].keys())
         except Exception as e:
             logger.error(str(e))
 
