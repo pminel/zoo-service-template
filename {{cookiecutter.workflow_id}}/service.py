@@ -108,9 +108,9 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         # In this example, you want to create a stageout.yaml file based on the service name,
         # you can first load the stageout.yaml file from the assets directory.
-        # file = open("/assets/stageout.yaml","rb")
-        # stageout_yaml = yaml.safe_load(file)
-        stageout_yaml = yaml.safe_load(open("/assets/stageout.yaml","rb"))
+        stageout_file = open("/assets/stageout.yaml","rb")
+        stageout_absolute_path = os.path.abspath(stageout_file.name)
+        stageout_yaml = yaml.safe_load(stageout_file)
 
         # Depending on the thematic service name, you can update the stageout.yaml file.
         # For example, if you want to import a specific Python file based on the thematic service name,
