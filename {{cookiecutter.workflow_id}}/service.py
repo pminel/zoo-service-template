@@ -102,9 +102,9 @@ class SimpleExecutionHandler(ExecutionHandler):
         logger.info(f"thematic_service_name: {thematic_service_name}")
         self.conf["additional_parameters"]["thematic_service_name"] = thematic_service_name
 
-        s3_bucket = self.get_s3_bucket()
-        logger.info(f"s3_bucket: {s3_bucket}")
-        self.conf["additional_parameters"]["s3_bucket"] = s3_bucket
+        # s3_bucket = self.get_s3_bucket()
+        # logger.info(f"s3_bucket: {s3_bucket}")
+        # self.conf["additional_parameters"]["s3_bucket"] = s3_bucket
 
         # In this example, you want to create a stageout.yaml file based on the service name,
         # you can first load the stageout.yaml file from the assets directory.
