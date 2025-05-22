@@ -218,7 +218,9 @@ class SimpleExecutionHandler(ExecutionHandler):
     def get_service_for_process(self):
         # This method is used to set the service name based on the process name.
         try:
-            logger.info(self.conf["requestBody"].keys())
+            res = json.dumps(self.conf).split("thematic_service_name")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
+            logger.info(res)
+            # logger.info(self.conf["requestBody"].keys())
         except Exception as e:
             logger.error(str(e))
 
