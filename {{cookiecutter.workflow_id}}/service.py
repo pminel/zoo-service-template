@@ -220,8 +220,8 @@ class SimpleExecutionHandler(ExecutionHandler):
 
     def get_s3_bucket(self):
         try:
-            inputs = self.conf["request"]["jrequest"]["inputs"]
-            res = inputs["s3_bucket"]
+            jrequest = json.loads(self.conf["request"]["jrequest"])
+            res = jrequest["inputs"]["s3_bucket"]
             # res = json.dumps(self.conf).split("s3_bucket")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
             return res
         except Exception as e:
@@ -229,9 +229,8 @@ class SimpleExecutionHandler(ExecutionHandler):
 
     def get_service_for_process(self):
         try:
-            inputs = self.conf["request"]["jrequest"]["inputs"]
-            logger.info(inputs)
-            res = inputs["thematic_service_name"]
+            jrequest = json.loads(self.conf["request"]["jrequest"])
+            res = jrequest["inputs"]["thematic_service_name"]
             # res = json.dumps(self.conf).split("thematic_service_name")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
             return res
         except Exception as e:
