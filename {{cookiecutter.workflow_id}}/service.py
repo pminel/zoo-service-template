@@ -217,7 +217,11 @@ class SimpleExecutionHandler(ExecutionHandler):
 
     def get_service_for_process(self):
         # This method is used to set the service name based on the process name.
-        logger.info(f"thematic_service_name={self.conf["request"]["jrequest"]["inputs"]["thematic_service_name"]}")
+        try:
+            request = self.conf["request"]
+            logger.info(request)
+        except Exception as e:
+            logger.error(str(e))
 
         # processes_relationship = {
         #     "my-service-name1": [
