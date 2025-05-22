@@ -181,6 +181,8 @@ class SimpleExecutionHandler(ExecutionHandler):
         # Here we store the stageout.yaml file in the tmpPath directory.
         #
         self.stageout_file_path = f"/{self.conf['main']['tmpPath']}/stageout{self.conf['lenv']['usid']}.yaml"
+        logger.info(f"self.stageout_file_path: {self.stageout_file_path}")
+        
         stageout_file=open(self.stageout_file_path,"w")
         logger.info(f"stageout_yaml 2: {stageout_yaml}")
         yaml.dump(stageout_yaml,stageout_file)
