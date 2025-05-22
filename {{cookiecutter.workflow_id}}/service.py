@@ -112,6 +112,8 @@ class SimpleExecutionHandler(ExecutionHandler):
         stageout_absolute_path = os.path.abspath(stageout_file.name)
         logger.info(f"stageout_file: {stageout_file.name}")
         logger.info(f"stageout_absolute_path: {stageout_absolute_path}")
+        for line in stageout_file:
+            logger.info(line, end='')
         stageout_yaml = yaml.safe_load(stageout_file)
 
         # Depending on the thematic service name, you can update the stageout.yaml file.
