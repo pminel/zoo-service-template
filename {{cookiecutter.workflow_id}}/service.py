@@ -221,6 +221,12 @@ class SimpleExecutionHandler(ExecutionHandler):
     def get_s3_bucket(self):
         try:
             logger.info(self.conf["main"].keys())
+            logger.info(self.conf["main"]["tmpPath"].keys())
+            logger.info(self.conf["main"]["mapserverAddress"].keys())
+            logger.info(self.conf["main"]["dataPath"].keys())
+            logger.info(self.conf["main"]["cacheDir"].keys())
+            logger.info(self.conf["main"]["templatesPath"].keys())
+            logger.info(self.conf["main"]["search_path"].keys())
             res = json.dumps(self.conf).split("s3_bucket")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
             return res
         except Exception as e:
