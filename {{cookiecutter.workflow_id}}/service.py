@@ -227,7 +227,8 @@ class SimpleExecutionHandler(ExecutionHandler):
 
     def get_service_for_process(self):
         try:
-            logger.info(json.dumps(self.conf))
+            res = json.dumps(self.conf).get("request").get("jrequest")
+            logger.info(res)
             res = json.dumps(self.conf).split("thematic_service_name")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
             return res
         except Exception as e:
