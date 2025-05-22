@@ -101,7 +101,12 @@ class SimpleExecutionHandler(ExecutionHandler):
         #
         # For example, if you want to add a new parameter to the execution of the wrapped Application Package,
         thematic_service_name = self.get_service_for_process()
+        print(f"thematic_service_name: {thematic_service_name}")
         self.conf["additional_parameters"]["thematic_service_name"] = thematic_service_name
+
+        s3_bucket = self.get_s3_bucket()
+        print(f"s3_bucket: {s3_bucket}")
+        self.conf["additional_parameters"]["s3_bucket"] = s3_bucket
 
         # In this example, you want to create a stageout.yaml file based on the service name,
         # you can first load the stageout.yaml file from the assets directory.
@@ -215,29 +220,19 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         return node_selector
 
-    def get_service_for_process(self):
-        # This method is used to set the service name based on the process name.
+    def get_s3_bucket(self):
         try:
-            res = json.dumps(self.conf).split("thematic_service_name")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
-            logger.info(res)
-            # logger.info(self.conf["requestBody"].keys())
+            res = json.dumps(self.conf).split("s3_bucket")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
+            return res
         except Exception as e:
             logger.error(str(e))
 
-        # processes_relationship = {
-        #     "my-service-name1": [
-        #         "process-name1",
-        #         "process-name2",
-        #     ],
-        #     "my-service-name2": [
-        #         "process-name3",
-        #         "process-name4",
-        #     ],
-        # }
-        # for i in processes_relationship:
-        #     if self.conf["lenv"]["Identifier"] in processes_relationship[i]:
-        #         return i
-        # return "my-service-name"
+    def get_service_for_process(self):
+        try:
+            res = json.dumps(self.conf).split("thematic_service_name")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
+            return res
+        except Exception as e:
+            logger.error(str(e))
 
 
     def get_additional_parameters(self):
