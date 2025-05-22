@@ -112,10 +112,8 @@ class SimpleExecutionHandler(ExecutionHandler):
         stageout_absolute_path = os.path.abspath(stageout_file.name)
         logger.info(f"stageout_file: {stageout_file.name}")
         logger.info(f"stageout_absolute_path: {stageout_absolute_path}")
-        with open("/assets/stageout.yaml", "r") as f:
-            for line in f:
-                print(line, end='')
         stageout_yaml = yaml.safe_load(stageout_file)
+        logger.info(f"stageout_yaml: {stageout_yaml}")
 
         # Depending on the thematic service name, you can update the stageout.yaml file.
         # For example, if you want to import a specific Python file based on the thematic service name,
@@ -184,6 +182,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         #
         self.stageout_file_path = f"/{self.conf['main']['tmpPath']}/stageout{self.conf['lenv']['usid']}.yaml"
         stageout_file=open(self.stageout_file_path,"w")
+        logger.info(f"stageout_yaml 2: {stageout_yaml}")
         yaml.dump(stageout_yaml,stageout_file)
         stageout_file.close()
         #
