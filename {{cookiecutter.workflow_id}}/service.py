@@ -93,8 +93,8 @@ class SimpleExecutionHandler(ExecutionHandler):
         # It is used to set up the additinal parameters based on specific criteria.
 
         logger.info("Pre execution hook")
-
         logger.info(f"conf: {self.conf}")
+
 
         #
         # Here you can patch the CWL file used for the stageout.
@@ -217,20 +217,22 @@ class SimpleExecutionHandler(ExecutionHandler):
 
     def get_service_for_process(self):
         # This method is used to set the service name based on the process name.
-        processes_relationship = {
-            "my-service-name1": [
-                "process-name1",
-                "process-name2",
-            ],
-            "my-service-name2": [
-                "process-name3",
-                "process-name4",
-            ],
-        }
-        for i in processes_relationship:
-            if self.conf["lenv"]["Identifier"] in processes_relationship[i]:
-                return i
-        return "my-service-name"
+        logger.info(f"thematic_service_name={self.conf["request"]["jrequest"]["inputs"]["thematic_service_name"]}")
+
+        # processes_relationship = {
+        #     "my-service-name1": [
+        #         "process-name1",
+        #         "process-name2",
+        #     ],
+        #     "my-service-name2": [
+        #         "process-name3",
+        #         "process-name4",
+        #     ],
+        # }
+        # for i in processes_relationship:
+        #     if self.conf["lenv"]["Identifier"] in processes_relationship[i]:
+        #         return i
+        # return "my-service-name"
 
 
     def get_additional_parameters(self):
