@@ -274,8 +274,6 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         )
         os.chdir(working_dir)
 
-        logger.info("Custom cookiecutter service")
-
         exit_status = runner.execute()
 
         if exit_status == zoo.SERVICE_SUCCEEDED:
