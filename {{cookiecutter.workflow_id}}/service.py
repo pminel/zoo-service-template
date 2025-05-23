@@ -99,12 +99,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         #
         # For example, if you want to add a new parameter to the execution of the wrapped Application Package,
         thematic_service_name = self.get_service_for_process()
-        logger.info(f"thematic_service_name: {thematic_service_name}")
         self.conf["additional_parameters"]["thematic_service_name"] = thematic_service_name
-
-        s3_bucket = self.get_s3_bucket()
-        logger.info(f"s3_bucket: {s3_bucket}")
-        self.conf["additional_parameters"]["s3_bucket"] = s3_bucket
 
         # In this example, you want to create a stageout.yaml file based on the service name,
         # you can first load the stageout.yaml file from the assets directory.
@@ -113,22 +108,22 @@ class SimpleExecutionHandler(ExecutionHandler):
         # Depending on the thematic service name, you can update the stageout.yaml file.
         # For example, if you want to import a specific Python file based on the thematic service name,
         # you can do it like this (obviously, you can also add new code to the stageout):
-        # entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
-        # entries[0]["entry"] += "\n" +\
-        #     "try:\n" +\
-        #     "    import my_service_indexing\n" +\
-        #     "except ImportError as e:\n" +\
-        #     "    print('error loading dynamic content: '+str(e),file=sys.stderr)\n"
+        entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
+        entries[0]["entry"] += "\n" +\
+            "try:\n" +\
+            "    import my_service_indexing\n" +\
+            "except ImportError as e:\n" +\
+            "    print('error loading dynamic content: '+str(e),file=sys.stderr)\n"
         #
         # In the stageout.yaml file, we have put a dedicated [INIT_TEMPLATE] string for you to replace with your code.
         # This is useful if you want to add new code to the intial phase of the stage.py file (which is the entry 0).
         # In the example below, we are adding a new variable named thematic_service_name.
         #
-        # entries[0]["entry"] = entries[0]["entry"].replace(
-        #     "[INIT_TEMPLATE]",
-        #     "thematic_service_name=sys.argv[4]\n" +
-        #     "print(f\"thematic_service_name: {thematic_service_name}\", file=sys.stderr)"
-        # )
+        entries[0]["entry"] = entries[0]["entry"].replace(
+            "[INIT_TEMPLATE]",
+            "thematic_service_name=sys.argv[4]\n" +
+            "print(f\"thematic_service_name: {thematic_service_name}\", file=sys.stderr)"
+        )
         # We are not doing it here, but you can also add new code to the stageout.yaml file.
         #
         # You can also add new Python file (or anythign else) to the stageout.yaml file.
@@ -148,14 +143,14 @@ class SimpleExecutionHandler(ExecutionHandler):
         #
         # In this example, you should add the new my_service_indexing.py file imported at the end of the .
         #
-        # entries.append(
-        #     {
-        #         "entryname": "my_service_indexing.py",
-        #         "entry": "import sys\n"+
-        #             f"print('Hello from {thematic_service_name}',file=sys.stderr)\n"+
-        #             "print(sys.argv,file=sys.stderr)"
-        #     }
-        # )
+        entries.append(
+            {
+                "entryname": "my_service_indexing.py",
+                "entry": "import sys\n"+
+                    f"print('Hello from {thematic_service_name}',file=sys.stderr)\n"+
+                    "print(sys.argv,file=sys.stderr)"
+            }
+        )
         # You can also add new input parameters and passs it as an argument.
         stageout_yaml["inputs"]["thematic_service_name"]={"type": "string"}
         stageout_yaml["arguments"].append("$( inputs.thematic_service_name )")
@@ -176,8 +171,6 @@ class SimpleExecutionHandler(ExecutionHandler):
         # Here we store the stageout.yaml file in the tmpPath directory.
         #
         self.stageout_file_path = f"/{self.conf['main']['tmpPath']}/stageout{self.conf['lenv']['usid']}.yaml"
-        logger.info(self.stageout_file_path)
-        logger.info(stageout_yaml)
         stageout_file=open(self.stageout_file_path,"w")
         yaml.dump(stageout_yaml,stageout_file)
         stageout_file.close()
@@ -220,25 +213,22 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         return node_selector
 
-
-    def get_s3_bucket(self):
-        try:
-            jrequest = json.loads(self.conf["request"]["jrequest"])
-            res = jrequest["inputs"]["s3_bucket"]
-            # res = json.dumps(self.conf).split("s3_bucket")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
-            return res
-        except Exception as e:
-            logger.error(str(e))
-
-
     def get_service_for_process(self):
-        try:
-            jrequest = json.loads(self.conf["request"]["jrequest"])
-            res = jrequest["inputs"]["thematic_service_name"]
-            # res = json.dumps(self.conf).split("thematic_service_name")[1].split(":")[1].split("}}")[0].replace('"',"").strip()
-            return res
-        except Exception as e:
-            logger.error(str(e))
+        # This method is used to set the service name based on the process name.
+        processes_relationship = {
+            "my-service-name1": [
+                "process-name1",
+                "process-name2",
+            ],
+            "my-service-name2": [
+                "process-name3",
+                "process-name4",
+            ],
+        }
+        for i in processes_relationship:
+            if self.conf["lenv"]["Identifier"] in processes_relationship[i]:
+                return i
+        return "my-service-name"
 
 
     def get_additional_parameters(self):
