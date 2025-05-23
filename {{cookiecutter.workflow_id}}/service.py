@@ -109,6 +109,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         # In this example, you want to create a stageout.yaml file based on the service name,
         # you can first load the stageout.yaml file from the assets directory.
         stageout_file = open("/assets/stageout.yaml","rb")
+        
         stageout_absolute_path = os.path.abspath(stageout_file.name)
         logger.info(f"stageout_file: {stageout_file.name}")
         logger.info(f"stageout_absolute_path: {stageout_absolute_path}")
@@ -117,22 +118,27 @@ class SimpleExecutionHandler(ExecutionHandler):
         # # Depending on the thematic service name, you can update the stageout.yaml file.
         # # For example, if you want to import a specific Python file based on the thematic service name,
         # # you can do it like this (obviously, you can also add new code to the stageout):
-        # entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
+        entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
+        entries[0]["entry"] += "\n" +\
+            "try:\n" +\
+            "    import my_service_indexing\n" +\
+            "except ImportError as e:\n" +\
+            "    print('error loading dynamic content: '+str(e),file=sys.stderr)\n"
         # entries[0]["entry"] += "\n" +\
         #     "try:\n" +\
-        #     "    import my_service_indexing\n" +\
+        #     "    import custom_stageout\n" +\
         #     "except ImportError as e:\n" +\
         #     "    print('error loading dynamic content: '+str(e),file=sys.stderr)\n"
-        # #
-        # # In the stageout.yaml file, we have put a dedicated [INIT_TEMPLATE] string for you to replace with your code.
-        # # This is useful if you want to add new code to the intial phase of the stage.py file (which is the entry 0).
-        # # In the example below, we are adding a new variable named thematic_service_name.
-        # #
-        # entries[0]["entry"] = entries[0]["entry"].replace(
-        #     "[INIT_TEMPLATE]",
-        #     "thematic_service_name=sys.argv[4]\n" +
-        #     "print(f\"thematic_service_name: {thematic_service_name}\", file=sys.stderr)"
-        # )
+        #
+        # In the stageout.yaml file, we have put a dedicated [INIT_TEMPLATE] string for you to replace with your code.
+        # This is useful if you want to add new code to the intial phase of the stage.py file (which is the entry 0).
+        # In the example below, we are adding a new variable named thematic_service_name.
+        #
+        entries[0]["entry"] = entries[0]["entry"].replace(
+            "[INIT_TEMPLATE]",
+            "thematic_service_name=sys.argv[4]\n" +
+            "print(f\"thematic_service_name: {thematic_service_name}\", file=sys.stderr)"
+        )
 
         # We are not doing it here, but you can also add new code to the stageout.yaml file.
         #
@@ -164,10 +170,10 @@ class SimpleExecutionHandler(ExecutionHandler):
         # entries.append(
         #     {
         #         "entryname": "custom_stageout.py",
-        #         "entry": open("/assets/custom_stageout.py","rb").read().decode("utf-8")
+        #         "entry": open("./custom_stageout.py","rb").read().decode("utf-8")
         #     }
         # )
-        
+
         # You can also add new input parameters and passs it as an argument.
         stageout_yaml["inputs"]["thematic_service_name"]={"type": "string"}
         stageout_yaml["arguments"].append("$( inputs.thematic_service_name )")
@@ -192,6 +198,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         #
         self.stageout_file_path = f"/{self.conf['main']['tmpPath']}/stageout{self.conf['lenv']['usid']}.yaml"
         logger.info(f"self.stageout_file_path: {self.stageout_file_path}")
+        logger.info(f"stageout_file: {stageout_yaml}")
 
         stageout_file=open(self.stageout_file_path,"w")
         yaml.dump(stageout_yaml,stageout_file)
