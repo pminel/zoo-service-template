@@ -113,22 +113,22 @@ class SimpleExecutionHandler(ExecutionHandler):
         # Depending on the thematic service name, you can update the stageout.yaml file.
         # For example, if you want to import a specific Python file based on the thematic service name,
         # you can do it like this (obviously, you can also add new code to the stageout):
-        entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
-        entries[0]["entry"] += "\n" +\
-            "try:\n" +\
-            "    import my_service_indexing\n" +\
-            "except ImportError as e:\n" +\
-            "    print('error loading dynamic content: '+str(e),file=sys.stderr)\n"
+        # entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
+        # entries[0]["entry"] += "\n" +\
+        #     "try:\n" +\
+        #     "    import my_service_indexing\n" +\
+        #     "except ImportError as e:\n" +\
+        #     "    print('error loading dynamic content: '+str(e),file=sys.stderr)\n"
         #
         # In the stageout.yaml file, we have put a dedicated [INIT_TEMPLATE] string for you to replace with your code.
         # This is useful if you want to add new code to the intial phase of the stage.py file (which is the entry 0).
         # In the example below, we are adding a new variable named thematic_service_name.
         #
-        entries[0]["entry"] = entries[0]["entry"].replace(
-            "[INIT_TEMPLATE]",
-            "thematic_service_name=sys.argv[4]\n" +
-            "print(f\"thematic_service_name: {thematic_service_name}\", file=sys.stderr)"
-        )
+        # entries[0]["entry"] = entries[0]["entry"].replace(
+        #     "[INIT_TEMPLATE]",
+        #     "thematic_service_name=sys.argv[4]\n" +
+        #     "print(f\"thematic_service_name: {thematic_service_name}\", file=sys.stderr)"
+        # )
         # We are not doing it here, but you can also add new code to the stageout.yaml file.
         #
         # You can also add new Python file (or anythign else) to the stageout.yaml file.
@@ -148,14 +148,14 @@ class SimpleExecutionHandler(ExecutionHandler):
         #
         # In this example, you should add the new my_service_indexing.py file imported at the end of the .
         #
-        entries.append(
-            {
-                "entryname": "my_service_indexing.py",
-                "entry": "import sys\n"+
-                    f"print('Hello from {thematic_service_name}',file=sys.stderr)\n"+
-                    "print(sys.argv,file=sys.stderr)"
-            }
-        )
+        # entries.append(
+        #     {
+        #         "entryname": "my_service_indexing.py",
+        #         "entry": "import sys\n"+
+        #             f"print('Hello from {thematic_service_name}',file=sys.stderr)\n"+
+        #             "print(sys.argv,file=sys.stderr)"
+        #     }
+        # )
         # You can also add new input parameters and passs it as an argument.
         stageout_yaml["inputs"]["thematic_service_name"]={"type": "string"}
         stageout_yaml["arguments"].append("$( inputs.thematic_service_name )")
