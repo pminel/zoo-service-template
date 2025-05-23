@@ -40,47 +40,6 @@ logger.remove()
 logger.add(sys.stderr, level="INFO")
 
 
-class CustomStacIO(DefaultStacIO):
-    """Custom STAC IO class that uses boto3 to read from S3."""
-
-    def __init__(self):
-        self.session = botocore.session.Session()
-        self.s3_client = self.session.create_client(
-            service_name="s3",
-            region_name="us-east-1",
-            endpoint_url="http://eoap-zoo-project-localstack.eoap-zoo-project.svc.cluster.local:4566",
-            aws_access_key_id="test",
-            aws_secret_access_key="test",
-        )
-
-    def read_text(self, source, *args, **kwargs):
-        parsed = urlparse(source)
-        if parsed.scheme == "s3":
-            return (
-                self.s3_client.get_object(Bucket=parsed.netloc, Key=parsed.path[1:])[
-                    "Body"
-                ]
-                .read()
-                .decode("utf-8")
-            )
-        else:
-            return super().read_text(source, *args, **kwargs)
-
-    def write_text(self, dest, txt, *args, **kwargs):
-        parsed = urlparse(dest)
-        if parsed.scheme == "s3":
-            self.s3_client.put_object(
-                Body=txt.encode("UTF-8"),
-                Bucket=parsed.netloc,
-                Key=parsed.path[1:],
-                ContentType="application/geo+json",
-            )
-        else:
-            super().write_text(dest, txt, *args, **kwargs)
-
-
-StacIO.set_default(CustomStacIO)
-
 
 class SimpleExecutionHandler(ExecutionHandler):
     def __init__(self, conf):
@@ -91,6 +50,7 @@ class SimpleExecutionHandler(ExecutionHandler):
     def pre_execution_hook(self):
 
         logger.info("Pre execution hook")
+        logger.info(json.dumps(self.conf))
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 
@@ -99,61 +59,6 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         logger.info("Post execution hook")
 
-        StacIO.set_default(CustomStacIO)
-
-        logger.info(f"Read catalog from STAC Catalog URI: {output['s3_catalog_output']}")
-
-        cat = read_file(output["s3_catalog_output"])
-
-        collection_id = self.get_additional_parameters()["sub_path"]
-
-        logger.info(f"Create collection with ID {collection_id}")
-
-        collection = None
-
-        collection = next(cat.get_all_collections())
-
-        logger.info("Got collection {collection.id} from processing outputs")
-        
-        items = []
-        
-        for item in collection.get_all_items():
-
-            logger.info("Processing item {item.id}")
-            
-            for asset_key in item.assets.keys():
-
-                logger.info(f"Processing asset {asset_key}")
-                
-                temp_asset = item.assets[asset_key].to_dict()
-                temp_asset["storage:platform"] = "eoap"
-                temp_asset["storage:requester_pays"] = False
-                temp_asset["storage:tier"] = "Standard"
-                temp_asset["storage:region"] = self.get_additional_parameters()[
-                    "region_name"
-                ]
-                temp_asset["storage:endpoint"] = self.get_additional_parameters()[
-                    "endpoint_url"
-                ]
-                item.assets[asset_key] = item.assets[asset_key].from_dict(temp_asset)
-            
-            item.collection_id = collection_id
-
-            items.append(item.clone())
-
-        item_collection = ItemCollection(items=items)
-
-        logger.info("Created feature collection from items")
-
-        # Trap the case of no output collection
-        if item_collection is None:
-            logger.error("The output collection is empty")
-            self.feature_collection = json.dumps({}, indent=2)
-            return
-
-        # Set the feature collection to be returned
-        self.results = item_collection.to_dict()
-        self.results["id"] = collection_id
 
     def get_pod_env_vars(self):
         # This method is used to set environment variables for the pod
@@ -204,11 +109,7 @@ class SimpleExecutionHandler(ExecutionHandler):
             logger.info("handle_outputs")
 
             logger.info(f"Set output to {output['s3_catalog_output']}")
-            self.results = {"url": output["s3_catalog_output"]}
 
-            self.conf["main"]["tmpUrl"] = self.conf["main"]["tmpUrl"].replace(
-                "temp/", self.conf["auth_env"]["user"] + "/temp/"
-            )
             services_logs = [
                 {
                     "url": os.path.join(
