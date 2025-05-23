@@ -104,7 +104,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         s3_bucket = self.get_s3_bucket()
         logger.info(f"s3_bucket: {s3_bucket}")
-        # self.conf["additional_parameters"]["s3_bucket"] = s3_bucket
+        self.conf["additional_parameters"]["s3_bucket"] = s3_bucket
 
         # In this example, you want to create a stageout.yaml file based on the service name,
         # you can first load the stageout.yaml file from the assets directory.
@@ -114,9 +114,9 @@ class SimpleExecutionHandler(ExecutionHandler):
         logger.info(f"stageout_absolute_path: {stageout_absolute_path}")
         stageout_yaml = yaml.safe_load(stageout_file)
 
-        # Depending on the thematic service name, you can update the stageout.yaml file.
-        # For example, if you want to import a specific Python file based on the thematic service name,
-        # you can do it like this (obviously, you can also add new code to the stageout):
+        # # Depending on the thematic service name, you can update the stageout.yaml file.
+        # # For example, if you want to import a specific Python file based on the thematic service name,
+        # # you can do it like this (obviously, you can also add new code to the stageout):
         # entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
         # entries[0]["entry"] += "\n" +\
         #     "try:\n" +\
@@ -167,6 +167,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         #         "entry": open("/assets/custom_stageout.py","rb").read().decode("utf-8")
         #     }
         # )
+        
         # You can also add new input parameters and passs it as an argument.
         stageout_yaml["inputs"]["thematic_service_name"]={"type": "string"}
         stageout_yaml["arguments"].append("$( inputs.thematic_service_name )")
