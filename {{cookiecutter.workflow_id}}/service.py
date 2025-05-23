@@ -114,10 +114,10 @@ class SimpleExecutionHandler(ExecutionHandler):
         logger.info(f"stageout_absolute_path: {stageout_absolute_path}")
         stageout_yaml = yaml.safe_load(stageout_file)
 
-        # # Depending on the thematic service name, you can update the stageout.yaml file.
-        # # For example, if you want to import a specific Python file based on the thematic service name,
-        # # you can do it like this (obviously, you can also add new code to the stageout):
-        # entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
+        # Depending on the thematic service name, you can update the stageout.yaml file.
+        # For example, if you want to import a specific Python file based on the thematic service name,
+        # you can do it like this (obviously, you can also add new code to the stageout):
+        entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
         # entries[0]["entry"] += "\n" +\
         #     "try:\n" +\
         #     "    import my_service_indexing\n" +\
