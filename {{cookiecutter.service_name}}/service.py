@@ -50,8 +50,11 @@ class SimpleExecutionHandler(ExecutionHandler):
     def pre_execution_hook(self):
 
         logger.info("Pre execution hook")
-        logger.info(json.dumps(self.conf))
-        logger.info(json.dumps(self.__dict__))
+        input_request = self['conf']['request']['jrequest']
+        import json
+        service_name = json.loads(input_request)['inputs']['thematic_service_name']
+        logger.info(f"Thematic service name: {service_name}")
+
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 
