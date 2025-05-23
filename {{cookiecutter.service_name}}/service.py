@@ -51,7 +51,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         logger.info("Pre execution hook")
         logger.info(json.dumps(self.conf))
-        logger.info(self.__dict__)
+        logger.info(json.dumps(self.__dict__))
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 
