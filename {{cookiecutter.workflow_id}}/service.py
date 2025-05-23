@@ -117,7 +117,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         # Depending on the thematic service name, you can update the stageout.yaml file.
         # For example, if you want to import a specific Python file based on the thematic service name,
         # you can do it like this (obviously, you can also add new code to the stageout):
-        entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
+        # entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
         # entries[0]["entry"] += "\n" +\
         #     "try:\n" +\
         #     "    import my_service_indexing\n" +\
@@ -161,12 +161,12 @@ class SimpleExecutionHandler(ExecutionHandler):
         #             "print(sys.argv,file=sys.stderr)"
         #     }
         # )
-        entries.append(
-            {
-                "entryname": "custom_stageout.py",
-                "entry": open("/assets/custom_stageout.py","rb").read().decode("utf-8")
-            }
-        )
+        # entries.append(
+        #     {
+        #         "entryname": "custom_stageout.py",
+        #         "entry": open("/assets/custom_stageout.py","rb").read().decode("utf-8")
+        #     }
+        # )
         # You can also add new input parameters and passs it as an argument.
         stageout_yaml["inputs"]["thematic_service_name"]={"type": "string"}
         stageout_yaml["arguments"].append("$( inputs.thematic_service_name )")
