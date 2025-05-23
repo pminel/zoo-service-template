@@ -109,11 +109,11 @@ class SimpleExecutionHandler(ExecutionHandler):
         # For example, if you want to import a specific Python file based on the thematic service name,
         # you can do it like this (obviously, you can also add new code to the stageout):
         entries = stageout_yaml["requirements"]["InitialWorkDirRequirement"]['listing']
-        entries[0]["entry"] += "\n" +\
-            "try:\n" +\
-            "    import my_service_indexing\n" +\
-            "except ImportError as e:\n" +\
-            "    print('error loading dynamic content: '+str(e),file=sys.stderr)\n"
+        # entries[0]["entry"] += "\n" +\
+        #     "try:\n" +\
+        #     "    import my_service_indexing\n" +\
+        #     "except ImportError as e:\n" +\
+        #     "    print('error loading dynamic content: '+str(e),file=sys.stderr)\n"
         #
         # In the stageout.yaml file, we have put a dedicated [INIT_TEMPLATE] string for you to replace with your code.
         # This is useful if you want to add new code to the intial phase of the stage.py file (which is the entry 0).
