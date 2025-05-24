@@ -54,7 +54,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         import json
         service_name = json.loads(input_request)['inputs']['thematic_service_name']
         logger.info(f"Thematic service name: {service_name}")
-
+        
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 
@@ -70,7 +70,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         logger.info("get_pod_env_vars")
 
-        env_vars = {"A": "1", "B": "2"}
+        env_vars = {"ANOTHER_VAR": self.conf['pod_env_vars']['ANOTHER_VAR']}
 
         return env_vars
 
