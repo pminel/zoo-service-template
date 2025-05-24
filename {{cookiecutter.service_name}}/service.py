@@ -112,7 +112,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         try:
             logger.info("handle_outputs")
 
-            logger.info(f"Set output to {output['s3_catalog_output']}")
+           # logger.info(f"Set output to {output['s3_catalog_output']}")
 
             services_logs = [
                 {
@@ -183,10 +183,10 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         exit_status = runner.execute()
 
         if exit_status == zoo.SERVICE_SUCCEEDED:
-            logger.info(f"Setting Collection into output key {list(outputs.keys())[0]}")
+            """logger.info(f"Setting Collection into output key {list(outputs.keys())[0]}")
             outputs["stac_catalog"]["value"] = json.dumps(
                 execution_handler.results, indent=2
-            )
+            )"""
             return zoo.SERVICE_SUCCEEDED
 
         else:
