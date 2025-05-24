@@ -152,6 +152,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  # noqa
 
     try:
+        logger.info(inputs)
         with open(
             os.path.join(
                 pathlib.Path(os.path.realpath(__file__)).parent.absolute(),
