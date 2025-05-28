@@ -111,34 +111,38 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         try:
             logger.info("handle_outputs")
-
+            logger.info(tool_logs)
+            logger.info(output)
+            logger.info(log)
+            logger.info(usage_report)
+            
            # logger.info(f"Set output to {output['s3_catalog_output']}")
+           
+            # services_logs = [
+            #     {
+            #         "url": os.path.join(
+            #             self.conf["main"]["tmpUrl"],
+            #             f"{self.conf['lenv']['Identifier']}-{self.conf['lenv']['usid']}",
+            #             os.path.basename(tool_log),
+            #         ),
+            #         "title": f"Tool log {os.path.basename(tool_log)}",
+            #         "rel": "related",
+            #     }
+            #     for tool_log in tool_logs
+            # ]
+            # for i in range(len(services_logs)):
+            #     okeys = ["url", "title", "rel"]
+            #     keys = ["url", "title", "rel"]
+            #     if i > 0:
+            #         for j in range(len(keys)):
+            #             keys[j] = keys[j] + "_" + str(i)
+            #     if "service_logs" not in self.conf:
+            #         self.conf["service_logs"] = {}
+            #     for j in range(len(keys)):
+            #         self.conf["service_logs"][keys[j]] = services_logs[i][okeys[j]]
 
-            services_logs = [
-                {
-                    "url": os.path.join(
-                        self.conf["main"]["tmpUrl"],
-                        f"{self.conf['lenv']['Identifier']}-{self.conf['lenv']['usid']}",
-                        os.path.basename(tool_log),
-                    ),
-                    "title": f"Tool log {os.path.basename(tool_log)}",
-                    "rel": "related",
-                }
-                for tool_log in tool_logs
-            ]
-            for i in range(len(services_logs)):
-                okeys = ["url", "title", "rel"]
-                keys = ["url", "title", "rel"]
-                if i > 0:
-                    for j in range(len(keys)):
-                        keys[j] = keys[j] + "_" + str(i)
-                if "service_logs" not in self.conf:
-                    self.conf["service_logs"] = {}
-                for j in range(len(keys)):
-                    self.conf["service_logs"][keys[j]] = services_logs[i][okeys[j]]
-
-            self.conf["service_logs"]["length"] = str(len(services_logs))
-            logger.info(f"service_logs: {self.conf['service_logs']}")
+            # self.conf["service_logs"]["length"] = str(len(services_logs))
+            # logger.info(f"service_logs: {self.conf['service_logs']}")
 
         except Exception as e:
             logger.error("ERROR in handle_outputs...")
