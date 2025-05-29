@@ -379,7 +379,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
             return zoo.SERVICE_FAILED
 
     except Exception as e:
-
+        logger.error(str(e))
         logger.error("ERROR in processing execution template...")
         logger.error("Try to fetch the tool logs if any...")
 
