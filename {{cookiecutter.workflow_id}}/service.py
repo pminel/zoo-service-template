@@ -99,7 +99,11 @@ class SimpleExecutionHandler(ExecutionHandler):
         #
         # For example, if you want to add a new parameter to the execution of the wrapped Application Package,
         thematic_service_name = self.get_service_for_process()
+        logger.info(f"### thematic_service_name: {thematic_service_name}")
         self.conf["additional_parameters"]["thematic_service_name"] = thematic_service_name
+
+        s3_bucket = self.get_s3_bucket()
+        logger.info(f"### s3_bucket: {s3_bucket}")
 
         # In this example, you want to create a stageout.yaml file based on the service name,
         # you can first load the stageout.yaml file from the assets directory.
@@ -152,10 +156,10 @@ class SimpleExecutionHandler(ExecutionHandler):
         #     }
         # )
         # You can also add new input parameters and passs it as an argument.
-        stageout_yaml["inputs"]["thematic_service_name"]={"type": "string"}
-        stageout_yaml["arguments"].append("$( inputs.thematic_service_name )")
-        # Yet another input parameter to be passed to the wrapped Application Package.
-        self.conf["additional_parameters"]["my_new_parameter"] = "my-service-name"
+        # stageout_yaml["inputs"]["thematic_service_name"]={"type": "string"}
+        # stageout_yaml["arguments"].append("$( inputs.thematic_service_name )")
+        # # Yet another input parameter to be passed to the wrapped Application Package.
+        # self.conf["additional_parameters"]["my_new_parameter"] = "my-service-name"
         #
         # We don't use it here, but you can also overwrite the environment variables available from the stageout pod.
         # i.e.:
@@ -213,22 +217,22 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         return node_selector
 
+    def get_s3_bucket(self):
+        try:
+            jrequest = json.loads(self.conf["request"]["jrequest"])
+            res = jrequest["inputs"]["s3_bucket"]
+            return res
+        except Exception as e:
+            logger.error(str(e))
+
+
     def get_service_for_process(self):
-        # This method is used to set the service name based on the process name.
-        processes_relationship = {
-            "my-service-name1": [
-                "process-name1",
-                "process-name2",
-            ],
-            "my-service-name2": [
-                "process-name3",
-                "process-name4",
-            ],
-        }
-        for i in processes_relationship:
-            if self.conf["lenv"]["Identifier"] in processes_relationship[i]:
-                return i
-        return "my-service-name"
+        try:
+            jrequest = json.loads(self.conf["request"]["jrequest"])
+            res = jrequest["inputs"]["thematic_service_name"]
+            return res
+        except Exception as e:
+            logger.error(str(e))
 
 
     def get_additional_parameters(self):
