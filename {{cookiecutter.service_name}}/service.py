@@ -54,9 +54,19 @@ class SimpleExecutionHandler(ExecutionHandler):
         import json
         service_name = json.loads(input_request)['inputs']['thematic_service_name']
         logger.info(f"Thematic service name: {service_name}")
+        
         stageout_yaml = yaml.safe_load(open("/assets/stageout.yaml","rb"))
+        
         logger.info(f"Stageout: {stageout_yaml}")
-        logger.info(os.environ)
+        logger.info("WRAPPER_STAGE_OUT" in os.environ)
+
+        self.stageout_file_path = f"/{self.conf['main']['tmpPath']}/stageout{self.conf['lenv']['usid']}.yaml"
+        stageout_file=open(self.stageout_file_path,"w")
+        yaml.dump(stageout_yaml,stageout_file)
+        stageout_file.close()
+        os.environ["WRAPPER_STAGE_OUT"] = self.stageout_file_path
+
+        logger.info("WRAPPER_STAGE_OUT" in os.environ)
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 
