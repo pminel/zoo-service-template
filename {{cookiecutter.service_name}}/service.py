@@ -81,8 +81,14 @@ class SimpleExecutionHandler(ExecutionHandler):
         # spawned by calrissian.
 
         logger.info("get_pod_env_vars")
-
-        env_vars = {"ANOTHER_VAR": self.conf['pod_env_vars']['ANOTHER_VAR']}
+        
+        env_vars = {
+            "ANOTHER_VAR": self.conf['pod_env_vars']['ANOTHER_VAR'],
+            "S3_BUCKET_NAME": self.conf['pod_env_vars']['S3_BUCKET_ADDRESS'],
+            "BUCKET_AK":self.conf['pod_env_vars']['BUCKET_1_AK'],
+            "BUCKET_AS": self.conf['pod_env_vars']['BUCKET_1_AS']
+        }
+        
 
         return env_vars
 
