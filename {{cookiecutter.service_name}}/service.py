@@ -56,6 +56,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         logger.info(f"Thematic service name: {service_name}")
         stageout_yaml = yaml.safe_load(open("/assets/stageout.yaml","rb"))
         logger.info(f"Stageout: {stageout_yaml}")
+        logger.info(os.environ)
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 
