@@ -109,11 +109,11 @@ class SimpleExecutionHandler(ExecutionHandler):
         logger.info("get_additional_parameters")
         additional_parameters: Dict[str, str] = {}
         additional_parameters = self.conf.get("additional_parameters", {})
-
+        
         additional_parameters["sub_path"] = self.conf["lenv"]["usid"]
 
         logger.info(f"additional_parameters: {additional_parameters.keys()}")
-
+        logger.info(self.conf)
         return additional_parameters
 
     def handle_outputs(self, log, output, usage_report, tool_logs):
