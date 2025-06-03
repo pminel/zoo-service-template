@@ -135,11 +135,6 @@ class SimpleExecutionHandler(ExecutionHandler):
             # logger.info(tool_logs)
             logger.info(f"output: {output}")
 
-            # if output is None:
-            #     logger.info("fix output")
-            #     output = '{"Result": 2}'
-            # logger.info(output)
-
             # logger.info(log)
             # logger.info(usage_report)
 
@@ -211,6 +206,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
     except Exception as e:
 
         logger.error("ERROR in processing execution template...")
+        logger.error(str(e))
         logger.error("Try to fetch the tool logs if any...")
 
         try:
