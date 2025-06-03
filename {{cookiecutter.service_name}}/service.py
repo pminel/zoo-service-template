@@ -83,7 +83,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         logger.info("get_pod_env_vars")
         
         env_vars = {
-            "ANOTHER_VAR": self.conf['pod_env_vars']['ANOTHER_VAR'],
+            # "ANOTHER_VAR": self.conf['pod_env_vars']['ANOTHER_VAR'],
             "S3_BUCKET_NAME": self.conf['pod_env_vars']['S3_BUCKET_ADDRESS'],
             "AWS_ACCESS_KEY_ID":self.conf['pod_env_vars']['BUCKET_1_AK'],
             "AWS_SECRET_ACCESS_KEY": self.conf['pod_env_vars']['BUCKET_1_AS'],
