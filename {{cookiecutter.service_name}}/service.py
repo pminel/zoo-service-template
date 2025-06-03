@@ -137,8 +137,14 @@ class SimpleExecutionHandler(ExecutionHandler):
             # logger.info(log)
             # logger.info(usage_report)
 
+            self.results = {"boh": "test_boh"}
+
+            self.conf["main"]["tmpUrl"] = self.conf["main"]["tmpUrl"].replace(
+                "temp/", self.conf["auth_env"]["user"] + "/temp/"
+            )
+
             # self.conf["status"] = "test_status"
-            # self.conf["servorch_status"] = "test_status"
+            self.conf["my_status"] = "my_status"
             # self.conf["message"] = "test_message"
         except Exception as e:
             logger.error("ERROR in handle_outputs...")
@@ -212,10 +218,6 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         logger.error(stack)
 
         # conf["lenv"]["message"] = zoo._(f"Exception during execution...\n{stack}\n")
-
         conf["lenv"]["message"] = "test output custom on exception"
-        # conf["lenv"]["status"] = "custom_status"
-        
-        # conf["servorch_status"] = "STATUS"
 
         return zoo.SERVICE_FAILED
