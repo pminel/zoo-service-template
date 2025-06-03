@@ -238,7 +238,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
 
         # conf["lenv"]["message"] = zoo._(f"Exception during execution...\n{stack}\n")
 
-        logger.error("Try to set custom message")
         conf["lenv"]["message"] = "test output custom on exception"
+        conf["lenv"]["status"] = "custom_status"
 
         return zoo.SERVICE_FAILED
