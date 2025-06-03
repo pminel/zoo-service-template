@@ -139,12 +139,12 @@ class SimpleExecutionHandler(ExecutionHandler):
 
             self.results = {"boh": "test_boh"}
 
-            self.conf["main"]["tmpUrl"] = self.conf["main"]["tmpUrl"].replace(
-                "temp/", self.conf["auth_env"]["user"] + "/temp/"
-            )
+            # self.conf["main"]["tmpUrl"] = self.conf["main"]["tmpUrl"].replace(
+            #     "temp/", self.conf["auth_env"]["user"] + "/temp/"
+            # )
 
             # self.conf["status"] = "test_status"
-            self.conf["my_status"] = "my_status"
+            # self.conf["my_status"] = "my_status"
             # self.conf["message"] = "test_message"
         except Exception as e:
             logger.error("ERROR in handle_outputs...")
