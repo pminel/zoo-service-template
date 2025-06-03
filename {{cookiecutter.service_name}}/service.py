@@ -133,7 +133,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         try:
             logger.info("handle_outputs")
             # logger.info(tool_logs)
-            # logger.info(output)
+            logger.info(f"output: {output}")
 
             # if output is None:
             #     logger.info("fix output")
