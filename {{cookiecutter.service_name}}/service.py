@@ -159,7 +159,6 @@ class SimpleExecutionHandler(ExecutionHandler):
 def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  # noqa
 
     try:
-        logger.info(inputs)
         with open(
             os.path.join(
                 pathlib.Path(os.path.realpath(__file__)).parent.absolute(),
@@ -187,7 +186,10 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         )
         os.chdir(working_dir)
 
-        exit_status = runner.execute()
+        # exit_status = runner.execute()
+        # logger.info(f"exit_staus: {exit_status}")
+
+        exit_status = zoo.SERVICE_FAILED
 
         if exit_status == zoo.SERVICE_SUCCEEDED:
             """logger.info(f"Setting Collection into output key {list(outputs.keys())[0]}")
