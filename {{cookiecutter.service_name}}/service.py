@@ -203,6 +203,8 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
             # conf["lenv"]["message"] = zoo._("Execution failed")
             conf["lenv"]["message"] = "test output custom on failed"
             conf["lenv"]["status"] = "tasking"
+            conf["message"] = "test output custom on failed 2"
+            conf["status"] = "tasking2"
             logger.error("Execution failed")
             return zoo.SERVICE_FAILED
 
