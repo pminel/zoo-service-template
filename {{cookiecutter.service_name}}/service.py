@@ -216,6 +216,6 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         conf["lenv"]["message"] = "test output custom on exception"
         # conf["lenv"]["status"] = "custom_status"
         
-        conf["servorch_status"] = "STATUS"
+        # conf["servorch_status"] = "STATUS"
 
         return zoo.SERVICE_FAILED
