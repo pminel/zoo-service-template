@@ -138,7 +138,7 @@ class SimpleExecutionHandler(ExecutionHandler):
             # logger.info(usage_report)
 
             self.conf["status"] = "test_status"
-            self.conf["message"] = "test_message"
+            # self.conf["message"] = "test_message"
             
            # logger.info(f"Set output to {output['s3_catalog_output']}")
            
