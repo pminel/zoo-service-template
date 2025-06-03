@@ -133,18 +133,24 @@ class SimpleExecutionHandler(ExecutionHandler):
         try:
             logger.info("handle_outputs")
             # logger.info(tool_logs)
-            # logger.info(output)
+            logger.info(output)
+
+            if output is None:
+                logger.info("fix output")
+                output = '{"Result": 2}'
+            logger.info(output)
+
             # logger.info(log)
             # logger.info(usage_report)
 
-            self.results = {"boh": "test_boh"}
+            # self.results = {"boh": "test_boh"}
 
             # self.conf["main"]["tmpUrl"] = self.conf["main"]["tmpUrl"].replace(
             #     "temp/", self.conf["auth_env"]["user"] + "/temp/"
             # )
 
             # self.conf["status"] = "test_status"
-            self.conf["my_status"] = "my_status"
+            # self.conf["my_status"] = "my_status"
             # self.conf["message"] = "test_message"
         except Exception as e:
             logger.error("ERROR in handle_outputs...")
