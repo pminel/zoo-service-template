@@ -144,7 +144,7 @@ class SimpleExecutionHandler(ExecutionHandler):
             # )
 
             # self.conf["status"] = "test_status"
-            # self.conf["my_status"] = "my_status"
+            self.conf["my_status"] = "my_status"
             # self.conf["message"] = "test_message"
         except Exception as e:
             logger.error("ERROR in handle_outputs...")
