@@ -132,10 +132,13 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         try:
             logger.info("handle_outputs")
-            logger.info(tool_logs)
-            logger.info(output)
-            logger.info(log)
-            logger.info(usage_report)
+            # logger.info(tool_logs)
+            # logger.info(output)
+            # logger.info(log)
+            # logger.info(usage_report)
+
+            self.conf["status"] = "test_status"
+            self.conf["message"] = "test_message"
             
            # logger.info(f"Set output to {output['s3_catalog_output']}")
            
