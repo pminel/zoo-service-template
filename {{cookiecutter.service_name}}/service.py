@@ -212,11 +212,12 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
             outputs["stac_catalog"]["value"] = json.dumps(
                 execution_handler.results, indent=2
             )"""
+            conf["lenv"]["message"] = "test output on success"
             return zoo.SERVICE_SUCCEEDED
 
         else:
-            conf["lenv"]["message"] = zoo._("Execution failed")
-            conf["lenv"]["message"] = "test output custom"
+            # conf["lenv"]["message"] = zoo._("Execution failed")
+            conf["lenv"]["message"] = "test output custom on failed"
             logger.error("Execution failed")
             return zoo.SERVICE_FAILED
 
@@ -235,6 +236,9 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
 
         logger.error(stack)
 
-        conf["lenv"]["message"] = zoo._(f"Exception during execution...\n{stack}\n")
+        # conf["lenv"]["message"] = zoo._(f"Exception during execution...\n{stack}\n")
+
+        logger.error("Try to set custom message")
+        conf["lenv"]["message"] = "test output custom on exception"
 
         return zoo.SERVICE_FAILED
