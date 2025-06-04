@@ -148,7 +148,8 @@ class SimpleExecutionHandler(ExecutionHandler):
 def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  # noqa
 
     test_outputs = {}
-    test_outputs["stac"] = {"value": ""}
+    test_outputs["stac"] = {"value": "OK", "Result": "OK"}
+    test_outputs["Result"] = "OK"
 
     try:
         with open(
