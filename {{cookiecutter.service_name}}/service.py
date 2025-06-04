@@ -159,11 +159,15 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
 
         execution_handler = SimpleExecutionHandler(conf=conf)
 
+        test_outputs = {}
+        test_outputs["stac"] = {"value": ""}
+        logger.info(f"test_outputs: {test_outputs}")
+
         runner = ZooCalrissianRunner(
             cwl=cwl,
             conf=conf,
             inputs=inputs,
-            outputs=outputs,
+            outputs=test_outputs,
             execution_handler=execution_handler,
         )
 
