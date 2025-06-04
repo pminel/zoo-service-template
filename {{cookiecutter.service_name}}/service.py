@@ -132,21 +132,10 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         try:
             logger.info("handle_outputs")
-            # logger.info(tool_logs)
+            logger.info(f"tool_logs: {tool_logs}")
             logger.info(f"output: {output}")
-
-            # logger.info(log)
-            # logger.info(usage_report)
-
-            # self.results = {"boh": "test_boh"}
-
-            # self.conf["main"]["tmpUrl"] = self.conf["main"]["tmpUrl"].replace(
-            #     "temp/", self.conf["auth_env"]["user"] + "/temp/"
-            # )
-
-            # self.conf["status"] = "test_status"
-            # self.conf["my_status"] = "my_status"
-            # self.conf["message"] = "test_message"
+            logger.info(f"log: {log}")
+            logger.info(f"usage_report: {usage_report}")
         except Exception as e:
             logger.error("ERROR in handle_outputs...")
             logger.error(traceback.format_exc())
@@ -186,10 +175,8 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         )
         os.chdir(working_dir)
 
-        # exit_status = runner.execute()
-        # logger.info(f"exit_staus: {exit_status}")
-
-        exit_status = zoo.SERVICE_FAILED
+        exit_status = runner.execute()
+        logger.info(f"exit_staus: {exit_status}")
 
         if exit_status == zoo.SERVICE_SUCCEEDED:
             """logger.info(f"Setting Collection into output key {list(outputs.keys())[0]}")
@@ -200,10 +187,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
             return zoo.SERVICE_SUCCEEDED
 
         else:
-            # conf["lenv"]["message"] = zoo._("Execution failed")
-            conf["lenv"]["message"] = "test output custom on failed"
-            conf["lenv"]["status"] = "tasking"
-            conf["lenv"]["custom_status"] = "custom_tasking"
+            conf["lenv"]["message"] = zoo._("Execution failed")
             logger.error("Execution failed")
             return zoo.SERVICE_FAILED
 
@@ -223,7 +207,6 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
 
         logger.error(stack)
 
-        # conf["lenv"]["message"] = zoo._(f"Exception during execution...\n{stack}\n")
-        conf["lenv"]["message"] = "test output custom on exception"
+        conf["lenv"]["message"] = zoo._(f"Exception during execution...\n{stack}\n")
 
         return zoo.SERVICE_FAILED
