@@ -147,6 +147,9 @@ class SimpleExecutionHandler(ExecutionHandler):
 
 def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  # noqa
 
+    test_outputs = {}
+    test_outputs["stac"] = {"value": ""}
+
     try:
         with open(
             os.path.join(
@@ -157,11 +160,9 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         ) as stream:
             cwl = yaml.safe_load(stream)
 
-        execution_handler = SimpleExecutionHandler(conf=conf)
+        logger.error(f"test_outputs A: {test_outputs}")
 
-        test_outputs = {}
-        test_outputs["stac"] = {"value": ""}
-        logger.info(f"test_outputs: {test_outputs}")
+        execution_handler = SimpleExecutionHandler(conf=conf)
 
         runner = ZooCalrissianRunner(
             cwl=cwl,
@@ -196,7 +197,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
             return zoo.SERVICE_FAILED
 
     except Exception as e:
-
+        logger.error(f"test_outputs B: {test_outputs}")
         logger.error("ERROR in processing execution template...")
         logger.error(str(e))
         logger.error("Try to fetch the tool logs if any...")
