@@ -160,7 +160,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         execution_handler = SimpleExecutionHandler(conf=conf)
 
         outputs = {
-            Result: 2
+            "Result": 2
         }
 
         runner = ZooCalrissianRunner(
