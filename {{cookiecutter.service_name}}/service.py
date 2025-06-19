@@ -187,6 +187,10 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         ) as stream:
             cwl = yaml.safe_load(stream)
 
+        logger.info("-- cwl --")
+        logger.info(cwl)
+        logger.info("-- cwl --")
+
         execution_handler = SimpleExecutionHandler(conf=conf)
 
         runner = ZooCalrissianRunner(
