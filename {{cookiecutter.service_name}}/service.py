@@ -47,6 +47,15 @@ class SimpleExecutionHandler(ExecutionHandler):
         self.conf = conf
         self.results = None
 
+    def finalize_cwl(self, cwl_in):
+        logger.info("Finalize CWL")
+        cwl_in_json = json.loads(cwl_in)
+
+
+
+        cwl_out = json.dumps(cwl_in_json)
+        return cwl_out
+
     def pre_execution_hook(self):
 
         logger.info("Pre execution hook")
@@ -187,14 +196,16 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         ) as stream:
             cwl = yaml.safe_load(stream)
 
-        logger.info("-- cwl --")
-        logger.info(cwl)
-        logger.info("-- cwl --")
+        from cwl_editor import finalize_cwl
+        finalized_cwl = finalize_cwl(cwl)
+        print("-- finalized_cwl --")
+        print(finalized_cwl)
+        print("-- finalized_cwl --")
 
         execution_handler = SimpleExecutionHandler(conf=conf)
 
         runner = ZooCalrissianRunner(
-            cwl=cwl,
+            cwl=finalized_cwl,
             conf=conf,
             inputs=inputs,
             outputs=outputs,
