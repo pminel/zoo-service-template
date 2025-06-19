@@ -105,7 +105,7 @@ def add_split_tiles_graph():
             "$(inputs.spatial_extent[1])",
             "$(inputs.spatial_extent[2])",
             "$(inputs.spatial_extent[3])",
-            "-- data_analysis_results",
+            "--data_analysis_results",
             "$(inputs.data_analysis_results)",
         ],
         "requirements": {
