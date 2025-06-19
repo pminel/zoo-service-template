@@ -47,15 +47,6 @@ class SimpleExecutionHandler(ExecutionHandler):
         self.conf = conf
         self.results = None
 
-    def finalize_cwl(self, cwl_in):
-        logger.info("Finalize CWL")
-        cwl_in_json = json.loads(cwl_in)
-
-
-
-        cwl_out = json.dumps(cwl_in_json)
-        return cwl_out
-
     def pre_execution_hook(self):
 
         logger.info("Pre execution hook")
@@ -233,7 +224,8 @@ class SimpleExecutionHandler(ExecutionHandler):
     def update_process_graph(self, process_graph):
         process_graph["inputs"] = {
             "spatial_extent": {
-                "type": "string[]"
+                "type": "array",
+                "items": "string",
             }
         }
         return process_graph
@@ -303,7 +295,8 @@ class SimpleExecutionHandler(ExecutionHandler):
             "inputs": {
                 "spatial_extent": {
                     "type": {
-                        "type": "string[]",
+                        "type": "array",
+                        "items": "string"
                     }
                 },
                 "data_analysis_results": {
@@ -329,7 +322,8 @@ class SimpleExecutionHandler(ExecutionHandler):
                             "fields": [
                                 {
                                     "name": "spatial_extent",
-                                    "type": "string[]"
+                                    "type": "array",
+                                    "items": "string"
                                 },
                             ]
                         }
@@ -366,7 +360,8 @@ class SimpleExecutionHandler(ExecutionHandler):
             },
             "inputs": {
                 "process_results": {
-                    "type": "Directory[]"
+                    "type": "array",
+                    "items": "Directory"
                 }
             },
             "outputs": {
