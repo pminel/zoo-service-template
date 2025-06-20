@@ -1,54 +1,60 @@
 def update_workflow_graph(workflow_graph):
-    workflow_graph["outputs"]["execution_results"] = {
-        "type": "Directory",
-        "outputSource": ["merge_results/execution_results"]
-    }
+    # workflow_graph["outputs"]["execution_results"] = {
+    #     "type": "Directory",
+    #     "outputSource": ["merge_results/execution_results"]
+    # }
 
-    if "requirements" not in workflow_graph:
-        workflow_graph["requirements"] = {}
-    workflow_graph["requirements"]["ScatterFeatureRequirement"] = {}
-    workflow_graph["requirements"]["StepInputExpressionRequirement"] = {}
+    # if "requirements" not in workflow_graph:
+    #     workflow_graph["requirements"] = {}
+    # workflow_graph["requirements"]["ScatterFeatureRequirement"] = {}
+    # workflow_graph["requirements"]["StepInputExpressionRequirement"] = {}
 
-    workflow_graph["steps"] = {
-        "analyse": {
-            "run": "#analyse",
-            "in": {"spatial_extent": "spatial_extent"},
-            "out": ["data_analysis_results"],
-        },
-        "stageout_data_analysis": {
+    # workflow_graph["steps"] = {
+    #     "analyse": {
+    #         "run": "#analyse",
+    #         "in": {"spatial_extent": "spatial_extent"},
+    #         "out": ["data_analysis_results"],
+    #     },
+    #     "stageout_data_analysis": {
+    #         "run": "#stageout_data_analysis",
+    #         "in": {"data_analysis_results": "analyse/data_analysis_results"},
+    #         "out": ["stageout_data_analysis_results"],
+    #     },
+    #     "split_tiles": {
+    #         "run": "#split_tiles",
+    #         "in": {
+    #             "spatial_extent": "spatial_extent",
+    #             "data_analysis_results": "analyse/data_analysis_results",
+    #             "stageout_data_analysis_results": "stageout_data_analysis/stageout_data_analysis_results",
+    #         },
+    #         "out": ["split_tiles_results", "tiles"],
+    #     },
+    #     "process": {
+    #         "run": "#process",
+    #         "in": {
+    #             "spatial_extent": {
+    #                 "source": "split_tiles/tiles",
+    #                 "valueFrom": "$(self.spatial_extent)",
+    #             }
+    #         },
+    #         "out": ["process_results"],
+    #         "scatter": "spatial_extent",
+    #         "scatterMethod": "flat_crossproduct",
+    #     },
+    #     "merge_results": {
+    #         "run": "#merge_results",
+    #         "in": {
+    #             "process_results": "process/process_results"
+    #         },
+    #         "out": ["execution_results"],
+    #     },
+    # }
+    workflow_graph["steps"]["stageout_data_analysis"] = {
             "run": "#stageout_data_analysis",
             "in": {"data_analysis_results": "analyse/data_analysis_results"},
             "out": ["stageout_data_analysis_results"],
-        },
-        "split_tiles": {
-            "run": "#split_tiles",
-            "in": {
-                "spatial_extent": "spatial_extent",
-                "data_analysis_results": "analyse/data_analysis_results",
-                "stageout_data_analysis_results": "stageout_data_analysis/stageout_data_analysis_results",
-            },
-            "out": ["split_tiles_results", "tiles"],
-        },
-        "process": {
-            "run": "#process",
-            "in": {
-                "spatial_extent": {
-                    "source": "split_tiles/tiles",
-                    "valueFrom": "$(self.spatial_extent)",
-                }
-            },
-            "out": ["process_results"],
-            "scatter": "spatial_extent",
-            "scatterMethod": "flat_crossproduct",
-        },
-        "merge_results": {
-            "run": "#merge_results",
-            "in": {
-                "process_results": "process/process_results"
-            },
-            "out": ["execution_results"],
-        },
-    }
+        }
+    workflow_graph["steps"]["process"]["in"]["stageout_data_analysis_results"] = "stageout_data_analysis/stageout_data_analysis_results"
     return workflow_graph
 
 def update_process_graph(process_graph):
@@ -124,8 +130,7 @@ def add_split_tiles_graph():
         "inputs": {
             "spatial_extent": {
                 "type": {
-                    "type": "array",
-                    "items": "string"
+                    "type": "string[]",
                 }
             },
             "data_analysis_results": {
@@ -209,19 +214,19 @@ def finalize_cwl(cwl):
             updated_workflow_graph = update_workflow_graph(graph)
             graphs.remove(graph)
             graphs.append(updated_workflow_graph)
-        elif graph["class"] == "CommandLineTool" and graph["id"] == "process":
-            print("Updating process graph")
-            updated_process_graph = update_process_graph(graph)
-            graphs.remove(graph)
-            graphs.append(updated_process_graph)
+    #     elif graph["class"] == "CommandLineTool" and graph["id"] == "process":
+    #         print("Updating process graph")
+    #         updated_process_graph = update_process_graph(graph)
+    #         graphs.remove(graph)
+    #         graphs.append(updated_process_graph)
 
     print("Adding stageout_data_analysis graph")
     graphs.append(add_stageout_data_analysis_graph())
 
-    print("Adding split_tiles graph")
-    graphs.append(add_split_tiles_graph())
-
-    print("Adding merge_results graph")
-    graphs.append(add_merge_results_graph())
+    # print("Adding split_tiles graph")
+    # graphs.append(add_split_tiles_graph())
+    #
+    # print("Adding merge_results graph")
+    # graphs.append(add_merge_results_graph())
 
     return cwl
