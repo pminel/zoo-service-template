@@ -124,8 +124,7 @@ def add_split_tiles_graph():
         "inputs": {
             "spatial_extent": {
                 "type": {
-                    "type": "array",
-                    "items": "string"
+                    "type": "string[]",
                 }
             },
             "data_analysis_results": {
