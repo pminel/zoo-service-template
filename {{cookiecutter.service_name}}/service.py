@@ -1,6 +1,10 @@
 from __future__ import annotations
 from typing import Dict
 import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+
 import cwl_helper
 
 
