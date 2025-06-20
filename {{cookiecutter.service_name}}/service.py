@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Dict
 import pathlib
-from ..helpers import cwl_helper
+import cwl_helper
 
 
 try:
