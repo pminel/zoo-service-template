@@ -1,15 +1,20 @@
 import yaml
+import sys
+from pathlib import Path
 
-from hooks import cwl_helper
+TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "{{cookiecutter.service_name}}"
+sys.path.insert(0, str(TEMPLATE_DIR))
+
+import cwl_helper
 
 
 def test_update_main_workflow():
-    with open("../reference_user.cwl", "r") as f:
+    with open("reference_user.cwl", "r") as f:
         cwl_in_yaml = yaml.safe_load(f.read())
 
     cwl_out = cwl_helper.finalize_cwl(cwl_in_yaml)
 
-    with open("../reference_user_finalized.cwl", "w") as f:
+    with open("reference_user_finalized.cwl", "w") as f:
         f.write(yaml.dump(cwl_out))
 
     graphs = cwl_out["$graph"]
