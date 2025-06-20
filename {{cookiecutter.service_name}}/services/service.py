@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Dict
 import pathlib
-from {{cookiecutter.service_name}}.helpers import cwl_helper
+from ..helpers import cwl_helper
 
 
 try:
