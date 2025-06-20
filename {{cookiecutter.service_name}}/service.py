@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Dict
 import pathlib
-from hooks import cwl_helper
+from cwl_helper import finalize_cwl
 
 
 try:
@@ -162,7 +162,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
 
         execution_handler = SimpleExecutionHandler(conf=conf)
 
-        finalized_cwl = cwl_helper.finalize_cwl(cwl)
+        finalized_cwl = finalize_cwl(cwl)
         runner = ZooCalrissianRunner(
             cwl=finalized_cwl,
             conf=conf,
