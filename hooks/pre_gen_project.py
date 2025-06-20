@@ -1,11 +1,7 @@
-import shutil
 import os
+import shutil
 
-# Path to your template's root
-project_dir = os.path.realpath(os.path.curdir)
+src = os.path.join(os.path.dirname(__file__), "cwl_helper.py")
+dst = os.path.join(os.getcwd(), "cwl_helper.py")  # this will be the generated folder
 
-# Copy the helper file from hook dir into the generated project
-shutil.copyfile(
-    os.path.join(os.path.dirname(__file__), "cwl_helper.py"),
-    os.path.join(project_dir, "cwl_helper.py")
-)
+shutil.copyfile(src, dst)
