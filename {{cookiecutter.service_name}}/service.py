@@ -165,6 +165,10 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         execution_handler = SimpleExecutionHandler(conf=conf)
 
         finalized_cwl = cwl_helper.finalize_cwl(cwl)
+        print("** finalized_cwl **")
+        print(finalized_cwl)
+        print("** finalized_cwl **")
+
         runner = ZooCalrissianRunner(
             cwl=finalized_cwl,
             conf=conf,
