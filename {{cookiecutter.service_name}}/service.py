@@ -161,7 +161,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         return {}
 
 
-def ndvi2(conf, inputs, outputs):  # noqa
+def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  # noqa
 
     try:
         logger.info(inputs)
