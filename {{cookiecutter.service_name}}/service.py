@@ -60,6 +60,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         service_name = json.loads(input_request)['inputs']['thematic_service_name']
         logger.info(f"Thematic service name: {service_name}")
         #self.conf['thematic_service_name'] = service_name
+        self.thematic_service_name = service_name
         
         stageout_yaml = yaml.safe_load(open("/assets/stageout.yaml","rb"))
         
@@ -82,7 +83,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         logger.info("Post execution hook")
 
     def _get_env_var(self, prefix):
-        identifier = '{}_{}'.format(prefix, self.conf['thematic_service_name'].upper())
+        identifier = '{}_{}'.format(prefix, self.thematic_service_name.upper())
         value = self.conf['pod_env_vars'].get(identifier)
         if not value:
             raise ValueError("No env var found named {}".format(identifier))
@@ -93,10 +94,10 @@ class SimpleExecutionHandler(ExecutionHandler):
         # spawned by calrissian.
 
         logger.info("get_pod_env_vars")
-        #logger.info(f"thematic_service_name: {self.conf['thematic_service_name']}")
-        #bucket_name = self._get_env_var("S3_BUCKET_ADDRESS")
-        #logger.info(f"bucket_name: {bucket_name}")
-        bucket_name = "eks-1-processing"
+        logger.info(f"thematic_service_name: {self.thematic_service_name}")
+        bucket_name = self._get_env_var("S3_BUCKET_ADDRESS")
+        logger.info(f"bucket_name: {bucket_name}")
+        #bucket_name = "eks-1-processing"
         
         env_vars = {
             "ANOTHER_VAR": self.conf['pod_env_vars']['ANOTHER_VAR'],
