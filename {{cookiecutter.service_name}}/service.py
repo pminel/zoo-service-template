@@ -94,10 +94,7 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         logger.info("get_pod_env_vars")
         
-        
         bucket_name = self._get_env_var("S3_BUCKET_ADDRESS")
-        access_key = self._get_env_var("S3_BUCKET_ACCESS_KEY")
-        access_secret_key = self._get_env_var("S3_BUCKET_SECRET_KEY")  # corrected if needed
         
         env_vars = {
             "S3_BUCKET_NAME": bucket_name,
@@ -106,6 +103,9 @@ class SimpleExecutionHandler(ExecutionHandler):
             "AWS_DEFAULT_REGION": "eu-central-1",
             "PROCESS_ID": self.conf["lenv"]["usid"],
             "SERVICE_NAME": self.conf['thematic_service_name']
+            "AWS_ACCESS_KEY_ID":self.conf['pod_env_vars']['AWS_ACCESS_KEY_ID'],
+            "AWS_SECRET_ACCESS_KEY": self.conf['pod_env_vars']['AWS_SECRET_ACCESS_KEY'],
+            "AWS_DEFAULT_REGION": "eu-central-1",
         }
 
         return env_vars
