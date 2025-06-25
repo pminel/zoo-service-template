@@ -59,6 +59,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         import json
         service_name = json.loads(input_request)['inputs']['thematic_service_name']
         logger.info(f"Thematic service name: {service_name}")
+        self.conf['thematic_service_name'] = service_name
         
         stageout_yaml = yaml.safe_load(open("/assets/stageout.yaml","rb"))
         
@@ -80,22 +81,32 @@ class SimpleExecutionHandler(ExecutionHandler):
 
         logger.info("Post execution hook")
 
-
+    def _get_env_var(self, prefix):
+        identifier = '{}_{}'.format(prefix, self.conf['thematic_service_name'].upper())
+        value = self.conf['pod_env_vars'].get(identifier)
+        if not value:
+            raise ValueError("No env var found named {}".format(identifier))
+        return value
+    
     def get_pod_env_vars(self):
         # This method is used to set environment variables for the pod
         # spawned by calrissian.
 
         logger.info("get_pod_env_vars")
         
-        env_vars = {
-            "ANOTHER_VAR": self.conf['pod_env_vars']['ANOTHER_VAR'],
-            "S3_BUCKET_NAME": self.conf['pod_env_vars']['S3_BUCKET_ADDRESS'],
-            "AWS_ACCESS_KEY_ID":self.conf['pod_env_vars']['BUCKET_1_AK'],
-            "AWS_SECRET_ACCESS_KEY": self.conf['pod_env_vars']['BUCKET_1_AS'],
-            "AWS_DEFAULT_REGION": "eu-central-1",
-            "PROCESS_ID": self.conf["lenv"]["usid"]
-        }
         
+        bucket_name = self._get_env_var("S3_BUCKET_ADDRESS")
+        access_key = self._get_env_var("S3_BUCKET_ACCESS_KEY")
+        access_secret_key = self._get_env_var("S3_BUCKET_SECRET_KEY")  # corrected if needed
+        
+        env_vars = {
+            "S3_BUCKET_NAME": bucket_name,
+            "AWS_ACCESS_KEY_ID": access_key,
+            "AWS_SECRET_ACCESS_KEY": access_secret_key,
+            "AWS_DEFAULT_REGION": "eu-central-1",
+            "PROCESS_ID": self.conf["lenv"]["usid"],
+            "SERVICE_NAME": self.conf['thematic_service_name']
+        }
 
         return env_vars
 
