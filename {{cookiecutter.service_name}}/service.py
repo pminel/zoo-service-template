@@ -59,7 +59,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         import json
         service_name = json.loads(input_request)['inputs']['thematic_service_name']
         logger.info(f"Thematic service name: {service_name}")
-        self.conf['thematic_service_name'] = service_name
+        #self.conf['thematic_service_name'] = service_name
         
         stageout_yaml = yaml.safe_load(open("/assets/stageout.yaml","rb"))
         
@@ -87,23 +87,26 @@ class SimpleExecutionHandler(ExecutionHandler):
         if not value:
             raise ValueError("No env var found named {}".format(identifier))
         return value
-    
+
     def get_pod_env_vars(self):
         # This method is used to set environment variables for the pod
         # spawned by calrissian.
 
         logger.info("get_pod_env_vars")
-        
-        bucket_name = self._get_env_var("S3_BUCKET_ADDRESS")
+        #logger.info(f"thematic_service_name: {self.conf['thematic_service_name']}")
+        #bucket_name = self._get_env_var("S3_BUCKET_ADDRESS")
+        #logger.info(f"bucket_name: {bucket_name}")
+        bucket_name = "eks-1-processing"
         
         env_vars = {
+            "ANOTHER_VAR": self.conf['pod_env_vars']['ANOTHER_VAR'],
             "S3_BUCKET_NAME": bucket_name,
-            "AWS_DEFAULT_REGION": "eu-central-1",
-            "PROCESS_ID": self.conf["lenv"]["usid"],
-            "SERVICE_NAME": self.conf['thematic_service_name']
             "AWS_ACCESS_KEY_ID":self.conf['pod_env_vars']['AWS_ACCESS_KEY_ID'],
-            "AWS_SECRET_ACCESS_KEY": self.conf['pod_env_vars']['AWS_SECRET_ACCESS_KEY'],
+            "AWS_SECRET_ACCESS_KEY": self.conf['pod_env_vars']['AWS_SECRET_ACCESS_KEY_ID'],
+            "AWS_DEFAULT_REGION": "eu-central-1",
+            "PROCESS_ID": self.conf["lenv"]["usid"]
         }
+        
 
         return env_vars
 
@@ -157,7 +160,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         return {}
 
 
-def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  # noqa
+def ndvi2(conf, inputs, outputs):  # noqa
 
     try:
         logger.info(inputs)
