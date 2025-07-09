@@ -100,11 +100,11 @@ class SimpleExecutionHandler(ExecutionHandler):
         #bucket_name = "eks-1-processing"
         
         env_vars = {
-            "ANOTHER_VAR": self.conf['pod_env_vars']['ANOTHER_VAR'],
             "S3_BUCKET_NAME": bucket_name,
             "AWS_ACCESS_KEY_ID":self.conf['pod_env_vars']['AWS_ACCESS_KEY_ID'],
             "AWS_SECRET_ACCESS_KEY": self.conf['pod_env_vars']['AWS_SECRET_ACCESS_KEY_ID'],
             "AWS_DEFAULT_REGION": "eu-central-1",
+            "CATALOG_URL": "https://catalogue.ax3hub-dev.planetek.gr/stac",
             "PROCESS_ID": self.conf["lenv"]["usid"]
         }
         
