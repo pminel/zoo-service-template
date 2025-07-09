@@ -103,8 +103,8 @@ class SimpleExecutionHandler(ExecutionHandler):
             "S3_BUCKET_NAME": bucket_name,
             "AWS_ACCESS_KEY_ID":self.conf['pod_env_vars']['AWS_ACCESS_KEY_ID'],
             "AWS_SECRET_ACCESS_KEY": self.conf['pod_env_vars']['AWS_SECRET_ACCESS_KEY_ID'],
-            "AWS_DEFAULT_REGION": "eu-central-1",
-            "CATALOG_URL": "https://catalogue.ax3hub-dev.planetek.gr/stac",
+            "AWS_DEFAULT_REGION": self.conf['pod_env_vars']['AWS_DEFAULT_REGION'],
+            "CATALOG_URL":  self.conf['pod_env_vars']['CATALOG_URL'],
             "PROCESS_ID": self.conf["lenv"]["usid"]
         }
         
