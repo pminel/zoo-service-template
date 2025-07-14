@@ -58,13 +58,9 @@ class SimpleExecutionHandler(ExecutionHandler):
         input_request = self.conf['request']['jrequest']
         import json
         service_name = json.loads(input_request)['inputs']['thematic_service_name']
-        logger.info(f"Thematic service name: {service_name}")
-        #self.conf['thematic_service_name'] = service_name
         self.thematic_service_name = service_name
         
         stageout_yaml = yaml.safe_load(open("/assets/stageout.yaml","rb"))
-        
-        logger.info(f"Stageout: {stageout_yaml}")
         logger.info("WRAPPER_STAGE_OUT" in os.environ)
 
         self.stageout_file_path = f"/{self.conf['main']['tmpPath']}/stageout{self.conf['lenv']['usid']}.yaml"
@@ -72,14 +68,12 @@ class SimpleExecutionHandler(ExecutionHandler):
         yaml.dump(stageout_yaml,stageout_file)
         stageout_file.close()
         os.environ["WRAPPER_STAGE_OUT"] = self.stageout_file_path
-
         logger.info("WRAPPER_STAGE_OUT" in os.environ)
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 
         # unset HTTP proxy or else the S3 client will use it and fail
         os.environ.pop("HTTP_PROXY", None)
-
         logger.info("Post execution hook")
 
     def _get_env_var(self, prefix):
@@ -94,11 +88,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         # spawned by calrissian.
 
         logger.info("get_pod_env_vars")
-        logger.info(f"thematic_service_name: {self.thematic_service_name}")
         bucket_name = self._get_env_var("S3_BUCKET_ADDRESS")
-        logger.info(f"bucket_name: {bucket_name}")
-        #bucket_name = "eks-1-processing"
-        
         env_vars = {
             "S3_BUCKET_NAME": bucket_name,
             "AWS_ACCESS_KEY_ID":self.conf['pod_env_vars']['AWS_ACCESS_KEY_ID'],
@@ -116,9 +106,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         # spawned by calrissian.
 
         logger.info("get_pod_node_selector")
-
         node_selector = {}
-
         return node_selector
 
     def get_additional_parameters(self):
@@ -126,14 +114,8 @@ class SimpleExecutionHandler(ExecutionHandler):
         # of the wrapped Application Package
 
         logger.info("get_additional_parameters")
-        additional_parameters: Dict[str, str] = {}
         additional_parameters = self.conf.get("additional_parameters", {})
-        
         additional_parameters["sub_path"] = self.conf["lenv"]["usid"]
-
-        logger.info(f"additional_parameters: {additional_parameters.keys()}")
-        import json
-        logger.info(json.dumps(self.conf))
         return additional_parameters
 
     def handle_outputs(self, log, output, usage_report, tool_logs):
@@ -177,10 +159,6 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
         execution_handler = SimpleExecutionHandler(conf=conf)
 
         finalized_cwl = cwl_helper.finalize_cwl(cwl)
-        print("** finalized_cwl **")
-        print(finalized_cwl)
-        print("** finalized_cwl **")
-
         runner = ZooCalrissianRunner(
             cwl=finalized_cwl,
             conf=conf,
@@ -223,9 +201,6 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  #
             logger.error(f"Fetching tool logs failed! ({str(e)})")
 
         stack = traceback.format_exc()
-
         logger.error(stack)
-
         conf["lenv"]["message"] = zoo._(f"Exception during execution...\n{stack}\n")
-
         return zoo.SERVICE_FAILED
