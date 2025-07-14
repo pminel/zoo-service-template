@@ -25,7 +25,7 @@ def add_stageout_data_analysis_graph():
         },
         "hints": {
             "DockerRequirement": {
-                "dockerPull": "pminel/zoo_reference_implementation:4.1",
+                "dockerPull": "brunifrancesco/zoo_reference_implementation:v5",
             }
         },
         "inputs": {
