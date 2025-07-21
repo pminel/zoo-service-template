@@ -95,6 +95,7 @@ class SimpleExecutionHandler(ExecutionHandler):
             "AWS_SECRET_ACCESS_KEY": self.conf['pod_env_vars']['AWS_SECRET_ACCESS_KEY_ID'],
             "AWS_DEFAULT_REGION": self.conf['pod_env_vars']['AWS_DEFAULT_REGION'],
             "CATALOG_URL":  self.conf['pod_env_vars']['CATALOG_URL'],
+            "REGISTRATION_URL":  self.conf['pod_env_vars']['REGISTRATION_URL'],
             "PROCESS_ID": self.conf["lenv"]["usid"]
         }
         
