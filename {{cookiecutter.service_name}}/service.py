@@ -141,7 +141,12 @@ class SimpleExecutionHandler(ExecutionHandler):
             raise (e)
 
     def get_secrets(self):
-        return {}
+        logger.info("get_secrets")
+        secrets={
+            "imagePullSecrets": self.local_get_file("/assets/pod_imagePullSecrets.yaml"),
+            "additionalImagePullSecrets": self.local_get_file("/assets/pod_additionalImagePullSecrets.yaml")
+        }
+        return secrets
 
 
 def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):  # noqa
