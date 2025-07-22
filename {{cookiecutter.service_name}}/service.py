@@ -58,7 +58,7 @@ class SimpleExecutionHandler(ExecutionHandler):
         import json
         service_name = json.loads(input_request)['inputs']['thematic_service_name']
         self.thematic_service_name = service_name
-        
+
         stageout_yaml = yaml.safe_load(open("/assets/stageout.yaml","rb"))
         logger.info("WRAPPER_STAGE_OUT" in os.environ)
 
@@ -87,17 +87,17 @@ class SimpleExecutionHandler(ExecutionHandler):
         # spawned by calrissian.
 
         logger.info("get_pod_env_vars")
-        bucket_name = self._get_env_var("S3_BUCKET_ADDRESS")
         env_vars = {
-            "S3_BUCKET_NAME": bucket_name,
-            "AWS_ACCESS_KEY_ID":self.conf['pod_env_vars']['AWS_ACCESS_KEY_ID'],
-            "AWS_SECRET_ACCESS_KEY": self.conf['pod_env_vars']['AWS_SECRET_ACCESS_KEY_ID'],
-            "AWS_DEFAULT_REGION": self.conf['pod_env_vars']['AWS_DEFAULT_REGION'],
+            "S3_BUCKET_NAME": self._get_env_var("S3_BUCKET_ADDRESS"),
+            "THEMATIC_SERVICE_NAME": self.thematic_service_name.upper(),
             "CATALOG_URL":  self.conf['pod_env_vars']['CATALOG_URL'],
             "REGISTRATION_URL":  self.conf['pod_env_vars']['REGISTRATION_URL'],
-            "PROCESS_ID": self.conf["lenv"]["usid"]
+            "PROCESS_ID": self.conf["lenv"]["usid"],
+            "AWS_ACCESS_KEY_ID": self._get_env_var("AWS_ACCESS_KEY_ID"),
+            "AWS_SECRET_ACCESS_KEY": self._get_env_var("AWS_SECRET_ACCESS_KEY_ID"),
+            "AWS_DEFAULT_REGION": self.conf['pod_env_vars']['AWS_DEFAULT_REGION'],
         }
-        
+
 
         return env_vars
 
