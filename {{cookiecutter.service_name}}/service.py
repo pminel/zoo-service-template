@@ -26,7 +26,6 @@ except ImportError:
     zoo = ZooStub()
 
 import os
-import sys
 import traceback
 import yaml
 import json
@@ -139,6 +138,25 @@ class SimpleExecutionHandler(ExecutionHandler):
             logger.error("ERROR in handle_outputs...")
             logger.error(traceback.format_exc())
             raise (e)
+
+    def local_get_file(self, fileName):
+        """
+        Read and load the contents of a yaml file
+        :param yaml file to load
+        """
+        try:
+            with open(fileName, "r") as file:
+                data = yaml.safe_load(file)
+            return data
+        # if file does not exist
+        except FileNotFoundError:
+            return {}
+        # if file is empty
+        except yaml.YAMLError:
+            return {}
+        # if file is not yaml
+        except yaml.scanner.ScannerError:
+            return {}
 
     def get_secrets(self):
         logger.info("get_secrets")
