@@ -1,5 +1,11 @@
 # see https://zoo-project.github.io/workshops/2014/first_service.html#f1
 import pathlib
+import sys
+from typing import Dict
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import cwl_helper
 
 try:
     import zoo
@@ -20,7 +26,6 @@ except ImportError:
 
 import json
 import os
-import sys
 from urllib.parse import urlparse
 
 import boto3  # noqa: F401
@@ -92,6 +97,7 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
     def __init__(self, conf):
         super().__init__()
         self.conf = conf
+        self.thematic_service_name = "internal"
 
         self.http_proxy_env = os.environ.get("HTTP_PROXY", None)
 
@@ -106,6 +112,7 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
             self.use_workspace = True
         else:
             self.use_workspace = False
+        logger.info("init workspace " + str(self.workspace_url)+"   "+str(self.workspace_prefix) +"   "+str(self.use_workspace))
 
         # Should outputs be registered to the Workspace Catalogue?
         # Only if we are using the Workspace, and catalogue registration has been specified.
@@ -123,7 +130,16 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         try:
             logger.info("Pre execution hook")
             self.unset_http_proxy_env()
+            logger.info("Adding Thematic service name ")
 
+            try:
+                input_request = self.conf['request']['jrequest']
+                logger.info(f"Raw input_request type: {type(input_request)}")
+                logger.info("input_request: "+ str(input_request))
+                service_name = json.loads(input_request)['inputs']['thematic_service_name']
+                self.thematic_service_name = service_name
+            except Exception as e:
+                logger.info("issue is: " + str(e))
             # DEBUG
             # logger.info(f"zzz PRE-HOOK - config...\n{json.dumps(self.conf, indent=2)}\n")
             
@@ -354,15 +370,32 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         except yaml.scanner.ScannerError:
             return {}
 
+    def _get_env_var(self, prefix):
+        identifier = '{}_{}'.format(prefix, self.thematic_service_name.upper())
+        value = self.conf['pod_env_vars'].get(identifier)
+        if not value:
+            raise ValueError("No env var found named {}".format(identifier))
+        return value
+
     def get_pod_env_vars(self):
         logger.info("get_pod_env_vars")
-
-        return self.conf.get("pod_env_vars", {})
+        env_vars = {
+            "S3_BUCKET_NAME": self._get_env_var("S3_BUCKET_ADDRESS"),
+            "THEMATIC_SERVICE_NAME": self.thematic_service_name.upper(),
+            "CATALOG_URL":  self.conf['pod_env_vars']['CATALOG_URL'],
+            "REGISTRATION_URL":  self.conf['pod_env_vars']['REGISTRATION_URL'],
+            "PROCESS_ID": self.conf["lenv"]["usid"],
+            "AWS_ACCESS_KEY_ID": self._get_env_var("AWS_ACCESS_KEY_ID"),
+            "AWS_SECRET_ACCESS_KEY": self._get_env_var("AWS_SECRET_ACCESS_KEY_ID"),
+            "AWS_DEFAULT_REGION": self.conf['pod_env_vars']['AWS_DEFAULT_REGION'],
+        }
+        return env_vars
 
     def get_pod_node_selector(self):
         logger.info("get_pod_node_selector")
-
-        return self.conf.get("pod_node_selector", {})
+        # Dont use custom node Selector. node selection should happen,
+        # automatically from the calrissian pod
+        return {}
 
     def get_secrets(self):
         logger.info("get_secrets")
@@ -371,8 +404,12 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
 
     def get_additional_parameters(self):
         logger.info("get_additional_parameters")
+        # sets the additional parameters for the execution
+        # of the wrapped Application Package
 
-        return self.conf.get("additional_parameters", {})
+        additional_parameters = self.conf.get("additional_parameters", {})
+        additional_parameters["sub_path"] = self.conf["lenv"]["usid"]
+        return additional_parameters
 
     def handle_outputs(self, log, output, usage_report, tool_logs):
         """
@@ -386,6 +423,10 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         """
         try:
             logger.info("handle_outputs")
+            logger.info(tool_logs)
+            logger.info(output)
+            logger.info(log)
+            logger.info(usage_report)
 
             # link element to add to the statusInfo
             self.conf['main']['tmpUrl']=self.conf['main']['tmpUrl'].replace("temp/",self.conf["auth_env"]["user"]+"/temp/")
@@ -435,18 +476,22 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
 
         execution_handler = EoepcaCalrissianRunnerExecutionHandler(conf=conf)
 
+        # Add stageout data analysis
+        finalized_cwl = cwl_helper.finalize_cwl(cwl)
+
         runner = ZooCalrissianRunner(
             cwl=cwl,
             conf=conf,
             inputs=inputs,
             outputs=outputs,
-            execution_handler=execution_handler,
+            execution_handler=execution_handler
         )
         # DEBUG
         # runner.monitor_interval = 1
 
         # we are changing the working directory to store the outputs
         # in a directory dedicated to this execution
+        logger.info("using namespace: "+ runner.get_namespace_name())
         working_dir = os.path.join(conf["main"]["tmpPath"], runner.get_namespace_name())
         os.makedirs(
             working_dir,
