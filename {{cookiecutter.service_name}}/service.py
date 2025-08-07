@@ -92,13 +92,13 @@ class SimpleExecutionHandler(ExecutionHandler):
             "THEMATIC_SERVICE_NAME": self.thematic_service_name.upper(),
             "CATALOG_URL":  self.conf['pod_env_vars']['CATALOG_URL'],
             "REGISTRATION_URL":  self.conf['pod_env_vars']['REGISTRATION_URL'],
+            "THRESHOLD_FOR_TASKING": self.conf['pod_env_vars']['THRESHOLD_FOR_TASKING'],
+            "THRESHOLD_FOR_UNRECOVERABLE_ERROR": self.conf['pod_env_vars']['THRESHOLD_FOR_UNRECOVERABLE_ERROR'],
             "PROCESS_ID": self.conf["lenv"]["usid"],
             "AWS_ACCESS_KEY_ID": self._get_env_var("AWS_ACCESS_KEY_ID"),
             "AWS_SECRET_ACCESS_KEY": self._get_env_var("AWS_SECRET_ACCESS_KEY_ID"),
             "AWS_DEFAULT_REGION": self.conf['pod_env_vars']['AWS_DEFAULT_REGION'],
         }
-
-
         return env_vars
 
     def get_pod_node_selector(self):
