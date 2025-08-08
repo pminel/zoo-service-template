@@ -6,6 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cwl_helper
+from utils import THEMATIC_SERVICES_KUBERNETES_MAPPING
 
 try:
     import zoo
@@ -98,6 +99,7 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         super().__init__()
         self.conf = conf
         self.thematic_service_name = "internal"
+        self._set_thematic_service_input()
 
         self.http_proxy_env = os.environ.get("HTTP_PROXY", None)
 
@@ -126,23 +128,21 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
 
         self.init_config_defaults(self.conf)
 
+    def _set_thematic_service_input(self):
+        logger.info("Adding Thematic service name ")
+        try:
+            input_request = self.conf['request']['jrequest']
+            logger.info("Input_request: "+ str(input_request))
+            service_name = json.loads(input_request)['inputs']['thematic_service_name']
+            self.thematic_service_name = service_name
+        except Exception as e:
+            logger.info("Setting thematice service name issue: " + str(e))
+
     def pre_execution_hook(self):
         try:
             logger.info("Pre execution hook")
             self.unset_http_proxy_env()
-            logger.info("Adding Thematic service name ")
 
-            try:
-                input_request = self.conf['request']['jrequest']
-                logger.info(f"Raw input_request type: {type(input_request)}")
-                logger.info("input_request: "+ str(input_request))
-                service_name = json.loads(input_request)['inputs']['thematic_service_name']
-                self.thematic_service_name = service_name
-            except Exception as e:
-                logger.info("issue is: " + str(e))
-            # DEBUG
-            # logger.info(f"zzz PRE-HOOK - config...\n{json.dumps(self.conf, indent=2)}\n")
-            
             # decode the JWT token to get the user name
             username_source = None
             if self.ades_rx_token:
@@ -376,6 +376,29 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         if not value:
             raise ValueError("No env var found named {}".format(identifier))
         return value
+
+    def get_namespace(self):
+        """Returns the namespace based on the thematic_service_name"""
+        # Check if the thematic_service_name is mapped
+        if self.thematic_service_name.lower() in THEMATIC_SERVICES_KUBERNETES_MAPPING:
+            namespace = THEMATIC_SERVICES_KUBERNETES_MAPPING[self.thematic_service_name.lower()]["namespace"]
+        else:
+            raise ValueError("No namespace found named {}".format(self.thematic_service_name.lower()))
+
+        logger.info(f"Using namespace: {namespace}")
+        return namespace
+
+    def get_service_account(self):
+        """Returns the service account based on the thematic_service_name"""
+
+        # Check if the thematic_service_name is mapped
+        if self.thematic_service_name.lower() in THEMATIC_SERVICES_KUBERNETES_MAPPING:
+            service_account = THEMATIC_SERVICES_KUBERNETES_MAPPING[self.thematic_service_name.lower()]["service-account"]
+        else:
+            raise ValueError("No k8s service-account found named {}".format(self.thematic_service_name.lower()))
+
+        logger.info(f"Using service account: {service_account}")
+        return service_account
 
     def get_pod_env_vars(self):
         logger.info("get_pod_env_vars")
