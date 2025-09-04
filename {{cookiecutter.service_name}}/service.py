@@ -6,7 +6,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cwl_helper
-from utils import THEMATIC_SERVICES_KUBERNETES_MAPPING
+from utils import THEMATIC_SERVICES_KUBERNETES_MAPPING, \
+    THEMATIC_SERVICES_VAULT_MAPPING
 
 try:
     import zoo
@@ -114,7 +115,6 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
             self.use_workspace = True
         else:
             self.use_workspace = False
-        logger.info("init workspace " + str(self.workspace_url)+"  ! "+str(self.workspace_prefix) +" !  "+str(self.use_workspace))
 
         # Should outputs be registered to the Workspace Catalogue?
         # Only if we are using the Workspace, and catalogue registration has been specified.
@@ -334,7 +334,51 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         logger.info("get_pod_node_selector")
         # Dont use custom node Selector. node selection should happen,
         # automatically from the calrissian pod
+        
         return {}
+
+
+    def get_pod_annotations(self) -> dict:
+        """
+        Build Vault Agent Injector
+        Notes:
+        - KV v2 READ path is <KV_MOUNT>/data/<path>
+        - Template renders ALL keys as: export KEY="value"
+        """
+        logger.info("get_pod_annotations")
+
+        svc = self.thematic_service_name.lower()
+        if svc not in THEMATIC_SERVICES_VAULT_MAPPING:
+            raise ValueError(f"No vault pod annotations found named {svc}")
+
+        cfg = THEMATIC_SERVICES_VAULT_MAPPING[svc]
+
+        # Required fields from mapping
+        role = cfg["role"]
+        name = cfg["name"]              # file name under /vault/secrets
+        rel_path = cfg["path"]          # path relative to KV mount (e.g. "land/secret")
+
+        vault_address = self.conf['pod_env_vars'].get("VAULT_ADDRESS")
+        if not vault_address:
+            raise ValueError("No env var found named VAULT_ADDRESS")
+        kv_mount = self.conf['pod_env_vars'].get("KV_MOUNT")
+        if not kv_mount:
+            raise ValueError("No env var found named KV_MOUNT")
+
+        # KV v2 read API path uses /data/
+        api_path = f"{kv_mount}/data/{rel_path}"
+
+        ann = {
+            "vault.hashicorp.com/agent-inject": "true",
+            "vault.hashicorp.com/role": role,
+            "vault.hashicorp.com/service": vault_address,
+
+            # secret mapping
+            f"vault.hashicorp.com/agent-inject-secret-{name}": api_path,
+        }
+        return ann
+
+
 
     def get_secrets(self):
         logger.info("get_secrets")
@@ -427,7 +471,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
             inputs=inputs,
             outputs=outputs,
             execution_handler=execution_handler,
-            dedicated_namespace=False
+            dedicated_namespace=True
         )
         # DEBUG
         # runner.monitor_interval = 1
@@ -435,7 +479,9 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
         # we are changing the working directory to store the outputs
         # in a directory dedicated to this execution
         logger.info("cookiecutter: using namespace: "+ runner.get_namespace_name())
-        working_dir = os.path.join(conf["main"]["tmpPath"], runner.get_namespace_name())
+        # working_dir = os.path.join(conf["main"]["tmpPath"], runner.get_workdir_name())
+        working_dir = os.path.join(conf["main"]["tmpPath"], runner.get_workdir_name())
+
         os.makedirs(
             working_dir,
             mode=0o777,
@@ -457,7 +503,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
     except Exception as e:
         logger.error("ERROR in processing execution template...")
         try:
-            with open(os.path.join(conf["main"]["tmpPath"], runner.get_namespace_name(),"job.log"),"w",encoding="utf-8") as file:
+            with open(os.path.join(conf["main"]["tmpPath"], runner.get_workdir_name(),"job.log"),"w",encoding="utf-8") as file:
                 file.write(runner.execution.get_log())
             if "service_logs" not in conf:
                 conf["service_logs"] = {}
@@ -466,7 +512,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
                 for i in range(len(keys)):
                     keys[i]+="_"+str(int(conf["service_logs"]["length"]))
             conf["service_logs"][keys[0]]=os.path.join(conf['main']['tmpUrl'].replace("temp/",conf["auth_env"]["user"]+"/temp/"),
-                    runner.get_namespace_name(),
+                    runner.get_workdir_name(),
                     "job.log")
             conf["service_logs"][keys[1]]="Job pod log"
             conf["service_logs"][keys[2]]="related"
