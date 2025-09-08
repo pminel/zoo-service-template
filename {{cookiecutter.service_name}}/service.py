@@ -350,7 +350,7 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
                 raise ValueError(f"No vault pod annotations found named {svc}")
             cfg = THEMATIC_SERVICES_VAULT_MAPPING[svc]
             name = cfg["name"]
-            return "/vault/secret/" + name
+            return "/vault/secrets/" + name
         return ""
 
     def get_pod_annotations(self) -> dict:
@@ -389,7 +389,8 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
             "vault.hashicorp.com/agent-inject": "true",
             "vault.hashicorp.com/role": role,
             "vault.hashicorp.com/service": vault_address,
-
+            "vault.hashicorp.com/agent-cpu-request": "50m",
+            "vault.hashicorp.com/agent-memory-request": "32Mi",
             # secret mapping
             f"vault.hashicorp.com/agent-inject-secret-{name}": api_path,
         }
@@ -425,10 +426,10 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         """
         try:
             logger.info("handle_outputs")
-            logger.info(tool_logs)
-            logger.info(output)
-            logger.info(log)
-            logger.info(usage_report)
+            logger.info("Tool Logs: " + str(tool_logs))
+            logger.info("Outputs: " + str(output))
+            logger.info("Log: " + str(log))
+            logger.info("Usage Report: " + str(usage_report))
 
             # Always ensure the dict exists
             if "service_logs" not in self.conf:
@@ -494,8 +495,8 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
             "r",
         ) as stream:
             cwl = yaml.safe_load(stream)
-        use_dedicated_namespace = True
-        use_vault_injector = True
+        use_dedicated_namespace = False
+        use_vault_injector = False
         execution_handler = EoepcaCalrissianRunnerExecutionHandler(
             conf=conf,
             dedicated_namespace=use_dedicated_namespace,
