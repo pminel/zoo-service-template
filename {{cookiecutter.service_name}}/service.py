@@ -422,7 +422,6 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         :param output: The output file of the execution.
         :param usage_report: The metrics file.
         :param tool_logs: A list of paths to individual workflow step logs.
-
         """
         try:
             logger.info("handle_outputs")
@@ -431,38 +430,57 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
             logger.info(log)
             logger.info(usage_report)
 
-            # link element to add to the statusInfo
-            self.conf['main']['tmpUrl']=self.conf['main']['tmpUrl'].replace("temp/",self.conf["auth_env"]["user"]+"/temp/")
+            # Always ensure the dict exists
+            if "service_logs" not in self.conf:
+                self.conf["service_logs"] = {}
+
+            # Normalize tmpUrl to user path
+            self.conf['main']['tmpUrl'] = self.conf['main']['tmpUrl'].replace(
+                "temp/", self.conf["auth_env"]["user"] + "/temp/"
+            )
+
+            # Build list of link items from tool_logs (may be empty)
             servicesLogs = [
                 {
-                    "url": os.path.join(self.conf['main']['tmpUrl'],
-                                        f"{self.conf['lenv']['Identifier']}-{self.conf['lenv']['usid']}",
-                                        os.path.basename(tool_log)),
+                    "url": os.path.join(
+                        self.conf['main']['tmpUrl'],
+                        f"{self.conf['lenv']['Identifier']}-{self.conf['lenv']['usid']}",
+                        os.path.basename(tool_log),
+                    ),
                     "title": f"Tool log {os.path.basename(tool_log)}",
                     "rel": "related",
                 }
-                for tool_log in tool_logs
+                for tool_log in (tool_logs or [])
             ]
-            cindex=0
-            if "service_logs" in self.conf:
-                cindex=1
-            for i in range(len(servicesLogs)):
+
+            # If no logs, just set length=0 and return
+            if not servicesLogs:
+                self.conf["service_logs"]["length"] = "0"
+                return
+
+            # Append entries using your existing key scheme
+            cindex = 0
+            if "service_logs" in self.conf and self.conf["service_logs"]:
+                cindex = 1
+
+            for item in servicesLogs:
                 okeys = ["url", "title", "rel"]
                 keys = ["url", "title", "rel"]
                 if cindex > 0:
                     for j in range(len(keys)):
-                        keys[j] = keys[j] + "_" + str(cindex)
-                if "service_logs" not in self.conf:
-                    self.conf["service_logs"] = {}
+                        keys[j] = f"{keys[j]}_{cindex}"
                 for j in range(len(keys)):
-                    self.conf["service_logs"][keys[j]] = servicesLogs[i][okeys[j]]
+                    self.conf["service_logs"][keys[j]] = item[okeys[j]]
                 cindex += 1
+
+            # Length of *this* batch
             self.conf["service_logs"]["length"] = str(len(servicesLogs))
 
         except Exception as e:
             logger.error("ERROR in handle_outputs...")
             logger.error(traceback.format_exc())
             raise(e)
+
 
 
 def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # noqa
