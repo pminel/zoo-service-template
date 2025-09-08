@@ -110,7 +110,7 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         self.workspace_prefix = eoepca.get("workspace_prefix", "")
         self.dedicated_namespace = dedicated_namespace
         self.vault_injector = vault_injector
-        if self.vault_injector and self.dedicated_namespace:
+        if self.vault_injector and not self.dedicated_namespace:
             raise Exception("Cannot use vault injector without dedicated namespace and service account")
 
         # Should the user's Workspace bucket be used for stage-out?
@@ -331,6 +331,8 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
             "AWS_ACCESS_KEY_ID": self._get_env_var("AWS_ACCESS_KEY_ID"),
             "AWS_SECRET_ACCESS_KEY": self._get_env_var("AWS_SECRET_ACCESS_KEY_ID"),
             "AWS_DEFAULT_REGION": self.conf['pod_env_vars']['AWS_DEFAULT_REGION'],
+            "VAULT_ADDRESS": self.conf['pod_env_vars'].get("VAULT_ADDRESS"),
+            "VAULT_LOCAL_PATH": self.get_vault_path()
         }
         return env_vars
 
@@ -341,6 +343,15 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         
         return {}
 
+    def get_vault_path(self):
+        if self.vault_injector:
+            svc = self.thematic_service_name.lower()
+            if svc not in THEMATIC_SERVICES_VAULT_MAPPING:
+                raise ValueError(f"No vault pod annotations found named {svc}")
+            cfg = THEMATIC_SERVICES_VAULT_MAPPING[svc]
+            name = cfg["name"]
+            return "/vault/secret/" + name
+        return ""
 
     def get_pod_annotations(self) -> dict:
         """
