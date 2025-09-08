@@ -96,7 +96,7 @@ StacIO.set_default(CustomStacIO)
 
 
 class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
-    def __init__(self, conf):
+    def __init__(self, conf, dedicated_namespace=False, vault_injector=False):
         super().__init__()
         self.conf = conf
         self.thematic_service_name = "internal"
@@ -108,6 +108,10 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         self.domain = eoepca.get("domain", "")
         self.workspace_url = eoepca.get("workspace_url", "")
         self.workspace_prefix = eoepca.get("workspace_prefix", "")
+        self.dedicated_namespace = dedicated_namespace
+        self.vault_injector = vault_injector
+        if self.vault_injector and self.dedicated_namespace:
+            raise Exception("Cannot use vault injector without dedicated namespace and service account")
 
         # Should the user's Workspace bucket be used for stage-out?
         # Only if both the workspace url, and the workspace prefix have been specified.
@@ -346,6 +350,8 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         - Template renders ALL keys as: export KEY="value"
         """
         logger.info("get_pod_annotations")
+        if not self.dedicated_namespace and not self.vault_injector:
+            return
 
         svc = self.thematic_service_name.lower()
         if svc not in THEMATIC_SERVICES_VAULT_MAPPING:
@@ -459,8 +465,13 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
             "r",
         ) as stream:
             cwl = yaml.safe_load(stream)
-
-        execution_handler = EoepcaCalrissianRunnerExecutionHandler(conf=conf)
+        use_dedicated_namespace = True
+        use_vault_injector = True
+        execution_handler = EoepcaCalrissianRunnerExecutionHandler(
+            conf=conf,
+            dedicated_namespace=use_dedicated_namespace,
+            vault_injector=use_vault_injector
+        )
 
         # Add stageout data analysis
         finalized_cwl = cwl_helper.finalize_cwl(cwl)
@@ -471,7 +482,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
             inputs=inputs,
             outputs=outputs,
             execution_handler=execution_handler,
-            dedicated_namespace=True
+            dedicated_namespace=use_dedicated_namespace
         )
         # DEBUG
         # runner.monitor_interval = 1
