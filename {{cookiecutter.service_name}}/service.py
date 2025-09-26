@@ -361,9 +361,12 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
         )
 
         input_request = conf['request']['jrequest']
-        process_scope = json.loads(input_request)['inputs']['scope'] or "indexing"
-        is_generic = process_scope == "generic"
-        finalized_cwl = cwl_helper.finalize_cwl(cwl, is_indexing=False if is_generic else True)
+        json_input_request = json.loads(input_request)
+        json_inputs = json.loads(input_request)['inputs']
+        process_scope = "indexing"
+        if "scope" in json_inputs and json_inputs["scope"] == "generic":
+            process_scope = "generic"
+        finalized_cwl = cwl_helper.finalize_cwl(cwl, process_scope == "indexing")
 
         runner = ZooCalrissianRunner(
             cwl=finalized_cwl,
