@@ -360,8 +360,10 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs): # 
             vault_injector=use_vault_injector
         )
 
-        # Add stageout data analysis
-        finalized_cwl = cwl_helper.finalize_cwl(cwl)
+        input_request = conf['request']['jrequest']
+        process_scope = json.loads(input_request)['inputs']['scope'] or "indexing"
+        is_generic = process_scope == "generic"
+        finalized_cwl = cwl_helper.finalize_cwl(cwl, is_indexing=False if is_generic else True)
 
         runner = ZooCalrissianRunner(
             cwl=finalized_cwl,
