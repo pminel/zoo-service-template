@@ -95,13 +95,11 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
             stageout_path = "/assets/stageout.yaml"
             if self.process_scope == "generic":
                 stageout_path = "/assets/stageout_generic.yaml"
-
             logger.info("Stageout path: " + stageout_path)
-            stageout_yaml = yaml.safe_load(open(stageout_path,"rb"))
-            # stageout_yaml = yaml.safe_load(open("/assets/stageout.yaml","rb"))
-            logger.info("WRAPPER_STAGE_OUT" in os.environ)
 
+            stageout_yaml = yaml.safe_load(open(stageout_path,"rb"))
             self.stageout_file_path = f"/{self.conf['main']['tmpPath']}/stageout{self.conf['lenv']['usid']}.yaml"
+            logger.info("Stageout file path: " + self.stageout_file_path)
             stageout_file=open(self.stageout_file_path,"w")
             yaml.dump(stageout_yaml,stageout_file)
             stageout_file.close()
