@@ -10,10 +10,7 @@ $graph:
         id: test-zoo-service-template
         label: test-zoo-service-template_label
         doc: test-zoo-service-template_doc
-        inputs:
-          spatial_extent:
-            type: string[]
-            label: Spatial extent bounding box [minLon, minLat, maxLon, maxLat]
+        inputs: {}
         outputs:
           execution_results:
             type: Directory
@@ -21,8 +18,7 @@ $graph:
         steps:
           process:
             run: "#process"
-            in:
-              spatial_extent: spatial_extent
+            in: {}
             out: [process_results]
 
       - class: CommandLineTool
@@ -31,10 +27,10 @@ $graph:
         arguments:
           - /app/run.py
           - --spatial_extent
-          - $(inputs.spatial_extent[0])
-          - $(inputs.spatial_extent[1])
-          - $(inputs.spatial_extent[2])
-          - $(inputs.spatial_extent[3])
+          - "10"
+          - "20"
+          - "30"
+          - "40"
         requirements:
           ResourceRequirement:
             coresMax: 1
@@ -42,9 +38,7 @@ $graph:
         hints:
           DockerRequirement:
             dockerPull: brunifrancesco/zoo_reference_implementation:v5
-        inputs:
-          spatial_extent:
-            type: string[]
+        inputs: {}
         outputs:
           process_results:
             type: Directory
