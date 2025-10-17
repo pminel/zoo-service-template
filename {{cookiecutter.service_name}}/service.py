@@ -209,7 +209,11 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
             "AWS_SECRET_ACCESS_KEY": self._get_env_var("AWS_SECRET_ACCESS_KEY_ID"),
             "AWS_DEFAULT_REGION": self.conf['pod_env_vars']['AWS_DEFAULT_REGION'],
             "VAULT_ADDRESS": self.conf['pod_env_vars'].get("VAULT_ADDRESS"),
-            "VAULT_LOCAL_PATH": self.get_vault_path()
+            "VAULT_LOCAL_PATH": self.get_vault_path(),
+            "AWS_ENDPOINT_URL": self.conf['pod_env_vars'].get("AWS_ENDPOINT_URL"),
+            "S3_BASE_URL_TEMPLATE": self.conf['pod_env_vars'].get("S3_BASE_URL_TEMPLATE"),
+            "DATA_ACCESS_BASE_URL": self.conf['pod_env_vars'].get("DATA_ACCESS_BASE_URL"),
+            "KV_MOUNT": self.conf['pod_env_vars'].get("KV_MOUNT"),
         }
         return env_vars
 
