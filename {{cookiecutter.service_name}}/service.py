@@ -200,20 +200,16 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
         env_vars = {
             "S3_BUCKET_NAME": self._get_env_var("S3_BUCKET_ADDRESS"),
             "THEMATIC_SERVICE_NAME": self.thematic_service_name.upper(),
+            "PROCESS_ID": self.conf["lenv"]["usid"],
             "CATALOG_URL":  self.conf['pod_env_vars']['CATALOG_URL'],
             "REGISTRATION_URL":  self.conf['pod_env_vars']['REGISTRATION_URL'],
-            "PROCESS_ID": self.conf["lenv"]["usid"],
             "THRESHOLD_FOR_TASKING": self.conf['pod_env_vars']['THRESHOLD_FOR_TASKING'],
             "THRESHOLD_FOR_UNRECOVERABLE_ERROR": self.conf['pod_env_vars']['THRESHOLD_FOR_UNRECOVERABLE_ERROR'],
-            "AWS_ACCESS_KEY_ID": self._get_env_var("AWS_ACCESS_KEY_ID"),
-            "AWS_SECRET_ACCESS_KEY": self._get_env_var("AWS_SECRET_ACCESS_KEY_ID"),
             "AWS_DEFAULT_REGION": self.conf['pod_env_vars']['AWS_DEFAULT_REGION'],
             "VAULT_ADDRESS": self.conf['pod_env_vars'].get("VAULT_ADDRESS"),
-            "VAULT_LOCAL_PATH": self.get_vault_path(),
-            "AWS_ENDPOINT_URL": self.conf['pod_env_vars'].get("AWS_ENDPOINT_URL"),
-            "S3_BASE_URL_TEMPLATE": self.conf['pod_env_vars'].get("S3_BASE_URL_TEMPLATE"),
             "DATA_ACCESS_BASE_URL": self.conf['pod_env_vars'].get("DATA_ACCESS_BASE_URL"),
             "KV_MOUNT": self.conf['pod_env_vars'].get("KV_MOUNT"),
+            "VAULT_LOCAL_PATH": self.get_vault_path(),
         }
         return env_vars
 
