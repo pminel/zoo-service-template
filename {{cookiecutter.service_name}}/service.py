@@ -206,6 +206,7 @@ class EoepcaCalrissianRunnerExecutionHandler(ExecutionHandler):
             "THRESHOLD_FOR_TASKING": self.conf['pod_env_vars']['THRESHOLD_FOR_TASKING'],
             "THRESHOLD_FOR_UNRECOVERABLE_ERROR": self.conf['pod_env_vars']['THRESHOLD_FOR_UNRECOVERABLE_ERROR'],
             "AWS_DEFAULT_REGION": self.conf['pod_env_vars']['AWS_DEFAULT_REGION'],
+            "AWS_ENDPOINT_URL": self.conf['pod_env_vars'].get("AWS_ENDPOINT_URL"),
             "VAULT_ADDRESS": self.conf['pod_env_vars'].get("VAULT_ADDRESS"),
             "DATA_ACCESS_BASE_URL": self.conf['pod_env_vars'].get("DATA_ACCESS_BASE_URL"),
             "KV_MOUNT": self.conf['pod_env_vars'].get("KV_MOUNT"),
